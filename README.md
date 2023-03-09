@@ -1,1 +1,1 @@
-# rt_homework
+# Raytracking course homework
