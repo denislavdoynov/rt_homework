@@ -4,15 +4,15 @@
 
 using namespace std;
 
-Shape::Shape(int width, int height) :
+Shape::Shape(float width, float height) :
 	_imageWidth(width), _imageHeight(height) 
 {
 }
 
 void Shape::draw(PPMFile& file)
 {
-	for (int y = 0; y < _imageHeight; ++y) {
-		for (int x = 0; x < _imageWidth; ++x) {
+	for (float y = 0; y < _imageHeight; ++y) {
+		for (float x = 0; x < _imageWidth; ++x) {
 			file.stream() << pixelColor(x, y).toString();
 		}
 		file.stream() << endl;
@@ -31,7 +31,7 @@ void Circle::setPostion(float x, float y) {
 	_cy = y;
 }
 
-Color Circle::pixelColor(int x, int y) {
+Color Circle::pixelColor(float x, float y) {
 	float distance = (_cx - x) * (_cx - x) + (_cy - y) * (_cy - y);
 	if (distance <= _radius) {
 		return _color;
@@ -57,12 +57,12 @@ void Rectangles::setColors(std::map<unsigned int, Color>&& colors)
 	_rectColors.swap(colors);
 }
 
-Color Rectangles::pixelColor(int x, int y) {
-	short boxX = x / _boxWidth;
-	short boxY = y / _boxHeight;
+Color Rectangles::pixelColor(float x, float y) {
+	short boxX = (short)(x / _boxWidth);
+	short boxY = (short)(y / _boxHeight);
 	unsigned int idx = (boxY << 16) | boxX;
 
-	if (_useRandomColors && (x % 2 || y % 2)) {
+	if (_useRandomColors && ((int)x % 2 || (int)y % 2)) {
 		return Color::random(MAX_COLOR_COMPONENT);
 	}
 	else {

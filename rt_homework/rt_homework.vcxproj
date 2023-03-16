@@ -127,15 +127,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Color.cpp" />
+    <ClCompile Include="Utils.cpp" />
     <ClCompile Include="PPMFile.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="RTImage.cpp" />
     <ClCompile Include="Shape.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Color.h" />
+    <ClInclude Include="Utils.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="PPMFile.h" />
+    <ClInclude Include="RTImage.h" />
     <ClInclude Include="Shape.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

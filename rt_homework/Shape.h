@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Color.h" 
+#include "Utils.h" 
 #include <map>
 
 class PPMFile;
@@ -8,14 +8,14 @@ class PPMFile;
 class Shape
 {
 public:
-	Shape(int width, int height);
+	Shape(float width, float height);
 
-	virtual Color pixelColor(int posX, int posY) = 0;
+	virtual Color pixelColor(float posX, float posY) = 0;
 	virtual void draw(PPMFile& file);
 
 protected:
-	const int _imageWidth = 0;
-	const int _imageHeight = 0;
+	const float _imageWidth = 0;
+	const float _imageHeight = 0;
 };
 
 class Circle : public Shape
@@ -23,7 +23,7 @@ class Circle : public Shape
 public:
 	Circle(float radius);
 	void setPostion(float x, float y);
-	Color pixelColor(int x, int y) override;
+	Color pixelColor(float x, float y) override;
 
 private:
 	Color _color;
@@ -37,11 +37,11 @@ class Rectangles : public Shape
 public:
 	Rectangles(int vCount, int hCount);
 	void setColors(std::map<unsigned int, Color>&& colors);
-	Color pixelColor(int x, int y) override;
+	Color pixelColor(float x, float y) override;
 
 private:
-	int _boxWidth = 0;
-	int _boxHeight = 0;
+	float _boxWidth = 0;
+	float _boxHeight = 0;
 	std::map<unsigned int, Color> _rectColors;
 	bool _useRandomColors = true;
 	
