@@ -5,10 +5,10 @@
 
 class PPMFile;
 
-class Shape
+class Drawable
 {
 public:
-	Shape(float width, float height);
+	Drawable(float width, float height);
 
 	virtual Color pixelColor(float posX, float posY) = 0;
 	virtual void draw(PPMFile& file);
@@ -18,7 +18,7 @@ protected:
 	const float _imageHeight = 0;
 };
 
-class Circle : public Shape
+class Circle : public Drawable
 {
 public:
 	Circle(float radius);
@@ -32,7 +32,7 @@ private:
 	float _cy = 0.f;
 };
 
-class Rectangles : public Shape
+class Rectangles : public Drawable
 {
 public:
 	Rectangles(int vCount, int hCount);

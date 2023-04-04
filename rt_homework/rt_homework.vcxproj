@@ -130,14 +130,14 @@
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="PPMFile.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="RTImage.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shape.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="PPMFile.h" />
-    <ClInclude Include="RTImage.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="Shape.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

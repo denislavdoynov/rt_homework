@@ -1,11 +1,11 @@
 #include "PPMFile.h"
 #include "Shape.h"
-#include "RTImage.h"
+#include "Scene.h"
 #include "Common.h"
 
 #include <iostream>
 
-#define TASK_4
+#define TASK_5
 
 int main() {
 	srand((unsigned int)time(NULL));
@@ -34,8 +34,8 @@ int main() {
 
 #ifdef TASK_3
 	PPMFile task3("output\\task3.ppm", IMAGE_WIDTH, IMAGE_HEIGHT, MAX_COLOR_COMPONENT);
-	RTImage img;
-	img.draw(task3);
+	Scene scene;
+	scene.draw(task3);
 #endif
 
 #ifdef TASK_4
@@ -49,16 +49,41 @@ int main() {
 	std::cout << "cross: " << p2_c.cross({ 1.75f, 3.5f, 0.f }) << std::endl;
 
 	Triangle p3_a({ -1.75, -1.75, -3 }, { 1.75, -1.75, -3 }, { 0, 1.75, -3 } );
-	std::cout << "cross: " << p3_a.cross().normalize() << std::endl;
+	std::cout << "normal: " << p3_a.normal().normalize() << std::endl;
 	std::cout << "area: " << p3_a.area() << std::endl;
 
 	Triangle p3_b({ 0, 0, -1 }, { 1, 0, 1 }, { -1, 0, 1 });
-	std::cout << "cross: " << p3_b.cross().normalize() << std::endl;
+	std::cout << "normal: " << p3_b.normal().normalize() << std::endl;
 	std::cout << "area: " << p3_b.area() << std::endl;
 
-	Triangle p3_c({ 0.56, 1.11, 1.23 }, { 0.44, -2.368, -0.54 }, { -1.56, 0.15, -1.92 });
-	std::cout << "cross: " << p3_c.cross().normalize() << std::endl;
+	Triangle p3_c({ 0.56f, 1.11f, 1.23f }, { 0.44f, -2.368f, -0.54f }, { -1.56f, 0.15f, -1.92f });
+	std::cout << "normal: " << p3_c.normal().normalize() << std::endl;
 	std::cout << "area: " << p3_c.area() << std::endl;
+#endif
+
+#ifdef TASK_5
+	{
+		// Create triangle and add to the scene
+		Triangle t1({ -1.75, -1.75, -3 }, { 3.75, -1.75, -3 }, { 0, 1.75, -3 });
+		t1.setColor({ 3, 252, 11 });	
+		Triangle t2({ 0.70, -1.75, -2 }, { 4.75, 1.75, -3 }, { 0, 1.75, -3 });
+		t2.setColor({ 252, 3, 140 });
+		
+		Scene scene;
+		scene.addGeometry(t1);
+		scene.addGeometry(t2);
+
+		PPMFile task5("output\\task5.ppm", IMAGE_WIDTH, IMAGE_HEIGHT, MAX_COLOR_COMPONENT);
+		scene.draw(task5);
+	}
+	{
+		Scene scene;
+		scene.addGeometry({{ -1.75, -1.75, -3 }, { 1.75, -1.75, -30 }, { 0, 1.75, -20 }});
+
+		PPMFile task5("output\\task5_a.ppm", IMAGE_WIDTH, IMAGE_HEIGHT, MAX_COLOR_COMPONENT);
+		scene.draw(task5);
+	}
+
 #endif
 
 	return 0;

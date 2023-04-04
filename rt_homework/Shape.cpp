@@ -4,12 +4,12 @@
 
 using namespace std;
 
-Shape::Shape(float width, float height) :
+Drawable::Drawable(float width, float height) :
 	_imageWidth(width), _imageHeight(height) 
 {
 }
 
-void Shape::draw(PPMFile& file)
+void Drawable::draw(PPMFile& file)
 {
 	for (float y = 0; y < _imageHeight; ++y) {
 		for (float x = 0; x < _imageWidth; ++x) {
@@ -20,7 +20,7 @@ void Shape::draw(PPMFile& file)
 }
 
 Circle::Circle(float radius) :
-	Shape(IMAGE_WIDTH, IMAGE_HEIGHT),
+	Drawable(IMAGE_WIDTH, IMAGE_HEIGHT),
 	_radius(radius* radius)
 {
 	_color = Color::random(MAX_COLOR_COMPONENT);
@@ -42,7 +42,7 @@ Color Circle::pixelColor(float x, float y) {
 }
 
 Rectangles::Rectangles(int vCount, int hCount) :
-	Shape(IMAGE_WIDTH, IMAGE_HEIGHT)
+	Drawable(IMAGE_WIDTH, IMAGE_HEIGHT)
 {
 	_boxWidth = hCount > 0 ? _imageWidth / hCount : _imageWidth;
 	_boxHeight = vCount > 0 ? _imageHeight / vCount : _imageHeight;
