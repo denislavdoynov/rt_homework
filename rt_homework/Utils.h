@@ -15,9 +15,13 @@ struct Color {
 };
 
 struct Vector {
+	static constexpr size_t SIZE = 3;
+
 	Vector() = default;
 	Vector(float x, float y, float z);
 	Vector& operator=(const Vector& other);
+	float operator[](int index) const;
+	float& operator[](int index);
 	Vector operator+(const Vector& other) const;
 	Vector operator-(const Vector& other) const;
 	Vector operator*(float scalar) const;
@@ -33,9 +37,16 @@ struct Vector {
 	//Vector cross(float x, float y, float z) const;
 	Color toColor(int maxColorComponent) const;
 
-	float X = 0.f;
-	float Y = 0.f;
-	float Z = 0.f;
+	float x() const { return _array[0]; }
+	float y() const { return _array[1]; }
+	float z() const { return _array[2]; }
+
+	void setX(float x) { _array[0] = x; }
+	void setY(float y) { _array[1] = y; }
+	void setZ(float z) { _array[2] = z; }
+
+private:
+	float _array[SIZE] { 0.f, 0.f, 0.f };
 };
 
 struct Triangle {
@@ -46,6 +57,7 @@ struct Triangle {
 	Color color() const;
 	void setColor(const Color& color);
 	float distance() const { return _distance; }
+	void setOrigin(const Vector& origin);
 	
 	float area();
 	// Recalculate normal and edge vectors
@@ -63,4 +75,22 @@ private:
 	Vector _vE2;
 	float _distance = 0.f;
 	Color _color{ 255, 255, 255 };
+	Vector _origin{ 0, 0, 0 };
+};
+
+class Matrix
+{
+	static constexpr int SIZE = 3;
+
+public:
+	Matrix() = default;
+	Matrix(	float a1, float a2, float a3, 
+			float a4, float a5, float a6, 
+			float a7, float a8, float a9);
+
+	Vector operator*(const Vector& other) const;
+	Matrix operator*(const Matrix& other) const;
+	
+private:
+	float _array[SIZE][SIZE]{ {0.f, 0.f, 0.f}, {0.f, 0.f, 0.f}, {0.f, 0.f, 0.f} };
 };

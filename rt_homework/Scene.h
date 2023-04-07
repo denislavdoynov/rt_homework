@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Shape.h"
-
+#include "Camera.h"
 #include <vector>
 
 constexpr float ROUNDING_ERROR_FLOAT = 0.0001f;
@@ -11,7 +11,7 @@ class Scene : public Drawable
 public:
 	Scene();
 	void addGeometry(const Triangle& triangle);
-	void setCamera(const Vector& origin);
+	void setCameraPosition(const Vector& origin);
 
 	Color pixelColor(float x, float y) override;
 
@@ -20,5 +20,5 @@ private:
 
 private:
 	std::vector<Triangle> _triangles;
-	Vector _camera{0, 0, 0};
+	Camera _camera;
 };

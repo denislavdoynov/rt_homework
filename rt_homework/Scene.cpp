@@ -9,11 +9,16 @@ Scene::Scene() :
 void Scene::addGeometry(const Triangle& triangle)
 {
     _triangles.emplace_back(triangle);
+    auto& back = _triangles.back();
+    back.setOrigin(_camera.position());
 }
 
-void Scene::setCamera(const Vector& origin)
+void Scene::setCameraPosition(const Vector& origin)
 {
-    _camera = origin;
+    _camera.setPosition(origin);
+    for(auto& triangle : _triangles) {
+        triangle.setOrigin(origin);
+    }
 }
 
 //! returns if a equals b, taking possible rounding errors into account
@@ -29,7 +34,10 @@ Color Scene::pixelColor(float x, float y)
   
     // Consider the aspect ratio
     float aspectRatio = (float)_imageWidth / (float)_imageHeight;
-    rayDirection.X *= aspectRatio;
+    rayDirection.setX(rayDirection.x() * aspectRatio);
+
+    // Set camera rotation matrix
+    //rayDirection = _camera.rotation() * rayDirection;
 
     rayDirection = rayDirection.normalize();
 
@@ -40,12 +48,12 @@ Color Scene::pixelColor(float x, float y)
          // If generated ray is not paralel to triangle plane
         if(!equals(normalDotRayDir, 0.0f)) {
             // If R is towards the triangle’s plane
-            if(normalDotRayDir < 0) {
-                float t = (triangle.normal().dot(_camera) + triangle.distance()) / normalDotRayDir;
-                Vector vP = _camera + (rayDirection * t);
-                if(triangle.checkIntersaction(vP)) {
+            if(triangle.distance() < 0) {
+                float t = triangle.distance() / normalDotRayDir;
+                Vector p = _camera.position() + (rayDirection * t);
+                if(triangle.checkIntersaction(p)) {
                     // Check if point is more close to the origin
-                    if (equals(pointDistance, 0.f) || t < pointDistance) {
+                    if (intersactionTriangle == nullptr || t < pointDistance) {
                         pointDistance = t;
                         intersactionTriangle = &triangle;
                     }

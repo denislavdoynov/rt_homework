@@ -1,41 +1,36 @@
-#include "PPMFile.h"
 #include "Shape.h"
 #include "Scene.h"
 #include "Common.h"
 
 #include <iostream>
 
-#define TASK_5
+#define TASK_6
 
 int main() {
 	srand((unsigned int)time(NULL));
 
 #ifdef TASK_1		
-	PPMFile task1("output\\task1.ppm", IMAGE_WIDTH, IMAGE_HEIGHT, MAX_COLOR_COMPONENT);
 	Rectangles rect(7, 5);
-	rect.draw(task1);
+	rect.draw("output\\task1.ppm");
 
-	PPMFile task1_2("output\\task1_2.ppm", IMAGE_WIDTH, IMAGE_HEIGHT, MAX_COLOR_COMPONENT);
 	Rectangles rect2(3, 0);
 	rect2.setColors({
 		std::make_pair(0, Color(255, 255, 255)),
 		std::make_pair(1 << 16, Color(0, 233, 0)),
 		std::make_pair(2 << 16, Color(233, 0, 0)),
 		});
-	rect2.draw(task1_2);
+	rect2.draw("output\\task1_2.ppm");
 #endif
 
 #ifdef TASK_2
-	PPMFile task2("output\\task2.ppm", IMAGE_WIDTH, IMAGE_HEIGHT, MAX_COLOR_COMPONENT);
 	Circle circle(220.f);
 	circle.setPostion(IMAGE_WIDTH * 0.5f, IMAGE_HEIGHT * 0.5f);
-	circle.draw(task2);
+	circle.draw("output\\task2.ppm");
 #endif
 
 #ifdef TASK_3
-	PPMFile task3("output\\task3.ppm", IMAGE_WIDTH, IMAGE_HEIGHT, MAX_COLOR_COMPONENT);
 	Scene scene;
-	scene.draw(task3);
+	scene.draw("output\\task3.ppm");
 #endif
 
 #ifdef TASK_4
@@ -72,16 +67,29 @@ int main() {
 		Scene scene;
 		scene.addGeometry(t1);
 		scene.addGeometry(t2);
-
-		PPMFile task5("output\\task5.ppm", IMAGE_WIDTH, IMAGE_HEIGHT, MAX_COLOR_COMPONENT);
-		scene.draw(task5);
+		scene.draw("output\\task5.ppm");
 	}
 	{
 		Scene scene;
 		scene.addGeometry({{ -1.75, -1.75, -3 }, { 1.75, -1.75, -30 }, { 0, 1.75, -20 }});
+		scene.draw("output\\task5_a.ppm");
+	}
 
-		PPMFile task5("output\\task5_a.ppm", IMAGE_WIDTH, IMAGE_HEIGHT, MAX_COLOR_COMPONENT);
-		scene.draw(task5);
+#endif
+
+#ifdef TASK_6
+	{
+		// Create triangle and add to the scene
+		Triangle t1({ -1.75, -1.75, -3 }, { 3.75, -1.75, -3 }, { 0, 1.75, -3 });
+		t1.setColor({ 3, 252, 11 });
+		Triangle t2({ 0.70, -1.75, -2 }, { 4.75, 1.75, -3 }, { 0, 1.75, -3 });
+		t2.setColor({ 252, 3, 140 });
+
+		Scene scene;
+		scene.setCameraPosition( {0, 2, 4});
+		scene.addGeometry(t1);
+		scene.addGeometry(t2);
+		scene.draw("output\\task6.ppm");
 	}
 
 #endif

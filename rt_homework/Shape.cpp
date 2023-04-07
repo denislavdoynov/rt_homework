@@ -9,8 +9,9 @@ Drawable::Drawable(float width, float height) :
 {
 }
 
-void Drawable::draw(PPMFile& file)
+void Drawable::draw(const std::string& filename)
 {
+	PPMFile file(filename, IMAGE_WIDTH, IMAGE_HEIGHT, MAX_COLOR_COMPONENT);
 	for (float y = 0; y < _imageHeight; ++y) {
 		for (float x = 0; x < _imageWidth; ++x) {
 			file.stream() << pixelColor(x, y).toString();

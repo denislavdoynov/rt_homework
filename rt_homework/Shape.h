@@ -3,15 +3,13 @@
 #include "Utils.h" 
 #include <map>
 
-class PPMFile;
-
 class Drawable
 {
 public:
 	Drawable(float width, float height);
 
 	virtual Color pixelColor(float posX, float posY) = 0;
-	virtual void draw(PPMFile& file);
+	virtual void draw(const std::string& filename);
 
 protected:
 	const float _imageWidth = 0;
