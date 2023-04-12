@@ -1,4 +1,5 @@
 #include "Utils.h"
+#include "Camera.h"
 #include <sstream>
 
 using namespace std;
@@ -129,10 +130,10 @@ Triangle::Triangle(const Vector& v0, const Vector& v1, const Vector& v2) :
 	recalc();
 }
 
-void Triangle::setOrigin(const Vector& origin)
+void Triangle::setCamera(const Camera& camera)
 {
-	_origin = origin;
-	_distance = _normal.dot(V0 - _origin);
+	_camera = &camera;
+	_distance = _normal.dot(V0 - _camera->position());
 }
 
 void Triangle::recalc()
@@ -143,7 +144,11 @@ void Triangle::recalc()
 
 	Vector E1 = V2 - V0;
 	_normal = _vE0.cross(E1).normalize();
-	_distance = _normal.dot(V0 - _origin);
+	if(_camera) {
+		_distance = _normal.dot(V0 - _camera->position());
+	} else {
+		_distance = _normal.dot(V0);
+	}
 }
 
 Vector Triangle::normal() const

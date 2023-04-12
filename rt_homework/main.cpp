@@ -3,6 +3,7 @@
 #include "Common.h"
 
 #include <iostream>
+#include <sstream>
 
 #define TASK_6
 
@@ -86,10 +87,29 @@ int main() {
 		t2.setColor({ 252, 3, 140 });
 
 		Scene scene;
-		scene.setCameraPosition( {0, 2, 4});
 		scene.addGeometry(t1);
 		scene.addGeometry(t2);
-		scene.draw("output\\task6.ppm");
+		
+		scene.camera().pan(30);
+		scene.draw("output\\task6_1.ppm");		
+		
+		scene.camera().pan(-30);
+		scene.draw("output\\task6_2.ppm");
+		scene.camera().truck({-2, 0, 0});
+		scene.draw("output\\task6_2_1.ppm");
+			
+		float panRotation = 0.f;
+		float step = 2.f;
+		for(int i = 0; i < 50; i++) {
+			panRotation += step;			
+			if(abs(panRotation) > 20.f )
+				step *= -1;
+
+			std::stringstream output;
+			output << "output\\task6_3_" << i << ".ppm";
+			scene.camera().pan(panRotation);
+			scene.draw(output.str());
+		}
 	}
 
 #endif

@@ -10,15 +10,7 @@ void Scene::addGeometry(const Triangle& triangle)
 {
     _triangles.emplace_back(triangle);
     auto& back = _triangles.back();
-    back.setOrigin(_camera.position());
-}
-
-void Scene::setCameraPosition(const Vector& origin)
-{
-    _camera.setPosition(origin);
-    for(auto& triangle : _triangles) {
-        triangle.setOrigin(origin);
-    }
+    back.setCamera(_camera);
 }
 
 //! returns if a equals b, taking possible rounding errors into account
@@ -37,7 +29,7 @@ Color Scene::pixelColor(float x, float y)
     rayDirection.setX(rayDirection.x() * aspectRatio);
 
     // Set camera rotation matrix
-    //rayDirection = _camera.rotation() * rayDirection;
+    rayDirection = _camera.rotation() * rayDirection;
 
     rayDirection = rayDirection.normalize();
 

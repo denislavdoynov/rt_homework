@@ -14,6 +14,7 @@ public:
 	void setCameraPosition(const Vector& origin);
 
 	Color pixelColor(float x, float y) override;
+	Camera& camera() { return _camera; }
 
 private:
 	inline bool equals(const float a, const float b, const float tolerance = ROUNDING_ERROR_FLOAT);

@@ -49,6 +49,8 @@ private:
 	float _array[SIZE] { 0.f, 0.f, 0.f };
 };
 
+class Camera;
+
 struct Triangle {
 	Triangle() = default;
 	Triangle(const Vector& v0, const Vector& v1, const Vector& v2);
@@ -57,7 +59,7 @@ struct Triangle {
 	Color color() const;
 	void setColor(const Color& color);
 	float distance() const { return _distance; }
-	void setOrigin(const Vector& origin);
+	void setCamera(const Camera& camera);
 	
 	float area();
 	// Recalculate normal and edge vectors
@@ -75,7 +77,7 @@ private:
 	Vector _vE2;
 	float _distance = 0.f;
 	Color _color{ 255, 255, 255 };
-	Vector _origin{ 0, 0, 0 };
+	const Camera* _camera = nullptr;
 };
 
 class Matrix
@@ -92,5 +94,5 @@ public:
 	Matrix operator*(const Matrix& other) const;
 	
 private:
-	float _array[SIZE][SIZE]{ {0.f, 0.f, 0.f}, {0.f, 0.f, 0.f}, {0.f, 0.f, 0.f} };
+	float _array[SIZE][SIZE]{ {1.f, 0.f, 0.f}, {0.f, 1.f, 0.f}, {0.f, 0.f, 1.f} };
 };
