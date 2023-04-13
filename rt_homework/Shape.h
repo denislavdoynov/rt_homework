@@ -6,14 +6,14 @@
 class Drawable
 {
 public:
-	Drawable(float width, float height);
+	Drawable(int width, int height);
 
 	virtual Color pixelColor(float posX, float posY) = 0;
 	virtual void draw(const std::string& filename);
 
 protected:
-	const float _imageWidth = 0;
-	const float _imageHeight = 0;
+	const int _imageWidth = 0;
+	const int _imageHeight = 0;
 };
 
 class Circle : public Drawable

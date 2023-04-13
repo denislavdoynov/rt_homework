@@ -4,17 +4,17 @@
 
 using namespace std;
 
-Drawable::Drawable(float width, float height) :
+Drawable::Drawable(int width, int height) :
 	_imageWidth(width), _imageHeight(height) 
 {
 }
 
 void Drawable::draw(const std::string& filename)
 {
-	PPMFile file(filename, IMAGE_WIDTH, IMAGE_HEIGHT, MAX_COLOR_COMPONENT);
-	for (float y = 0; y < _imageHeight; ++y) {
-		for (float x = 0; x < _imageWidth; ++x) {
-			file.stream() << pixelColor(x, y).toString();
+	PPMFile file(filename, _imageWidth, _imageHeight, MAX_COLOR_COMPONENT);
+	for (int y = 0; y < _imageHeight; ++y) {
+		for (int x = 0; x < _imageWidth; ++x) {
+			file.stream() << pixelColor((float)x, (float)y).toString();
 		}
 		file.stream() << endl;
 	}
@@ -45,8 +45,8 @@ Color Circle::pixelColor(float x, float y) {
 Rectangles::Rectangles(int vCount, int hCount) :
 	Drawable(IMAGE_WIDTH, IMAGE_HEIGHT)
 {
-	_boxWidth = hCount > 0 ? _imageWidth / hCount : _imageWidth;
-	_boxHeight = vCount > 0 ? _imageHeight / vCount : _imageHeight;
+	_boxWidth = hCount > 0 ? (float)_imageWidth / hCount : (float)_imageWidth;
+	_boxHeight = vCount > 0 ? (float)_imageHeight / vCount : (float)_imageHeight;
 }
 
 void Rectangles::setColors(std::map<unsigned int, Color>&& colors)

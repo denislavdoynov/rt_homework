@@ -1,11 +1,12 @@
 #include "Shape.h"
 #include "Scene.h"
 #include "Common.h"
+#include "Renderer.h"
 
 #include <iostream>
 #include <sstream>
 
-#define TASK_6
+#define TASK_7
 
 int main() {
 	srand((unsigned int)time(NULL));
@@ -81,22 +82,24 @@ int main() {
 #ifdef TASK_6
 	{
 		// Create triangle and add to the scene
+		Scene scene(IMAGE_WIDTH, IMAGE_HEIGHT);
+		Renderer renderer(scene);
 		Triangle t1({ -1.75, -1.75, -3 }, { 3.75, -1.75, -3 }, { 0, 1.75, -3 });
 		t1.setColor({ 3, 252, 11 });
 		Triangle t2({ 0.70, -1.75, -2 }, { 4.75, 1.75, -3 }, { 0, 1.75, -3 });
 		t2.setColor({ 252, 3, 140 });
 
-		Scene scene;
 		scene.addGeometry(t1);
 		scene.addGeometry(t2);
-		
+
 		scene.camera().pan(30);
-		scene.draw("output\\task6_1.ppm");		
+		renderer.render("output\\task6_1.ppm");
 		
 		scene.camera().pan(-30);
-		scene.draw("output\\task6_2.ppm");
+		renderer.render("output\\task6_2.ppm");
+
 		scene.camera().truck({-2, 0, 0});
-		scene.draw("output\\task6_2_1.ppm");
+		renderer.render("output\\task6_2_1.ppm");
 			
 		float panRotation = 0.f;
 		float step = 2.f;
@@ -108,10 +111,33 @@ int main() {
 			std::stringstream output;
 			output << "output\\task6_3_" << i << ".ppm";
 			scene.camera().pan(panRotation);
-			scene.draw(output.str());
+			renderer.render(output.str());
 		}
 	}
 
+#endif
+
+#ifdef TASK_7
+	Scene scene;
+	Renderer renderer(scene);
+	if(scene.loadScene("input\\scene0.crtscene")) {
+		renderer.render("output\\task7_0.ppm");
+	}
+	if (scene.loadScene("input\\scene1.crtscene")) {
+		renderer.render("output\\task7_1.ppm");
+	}
+
+	if (scene.loadScene("input\\scene2.crtscene")) {
+		renderer.render("output\\task7_2.ppm");
+	}
+
+	if (scene.loadScene("input\\scene3.crtscene")) {
+		renderer.render("output\\task7_3.ppm");
+	}
+
+	if (scene.loadScene("input\\scene4.crtscene")) {
+		renderer.render("output\\task7_4.ppm");
+	}
 #endif
 
 	return 0;

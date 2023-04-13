@@ -128,6 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="PPMFile.cpp" />
     <ClCompile Include="main.cpp" />
@@ -136,6 +137,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="PPMFile.h" />

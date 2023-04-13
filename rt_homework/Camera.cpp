@@ -13,6 +13,11 @@ void Camera::setPosition(const Vector& position)
     _position = position;
 }
 
+void Camera::setMatrix(const Matrix& rotMatrix)
+{
+    _rotation = rotMatrix;
+}
+
 void Camera::truck(const Vector& move)
 {
     auto moveinWorldSpace = _rotation * move;
