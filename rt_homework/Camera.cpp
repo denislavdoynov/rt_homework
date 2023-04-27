@@ -1,7 +1,5 @@
 #include "Camera.h"
 
-const float PI = 3.14159265358979f;
-
 float Camera::convertToRads(const float degs)
 {
     return degs * (PI / 180.f);

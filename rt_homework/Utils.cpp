@@ -1,9 +1,10 @@
 #include "Utils.h"
 #include "Camera.h"
 #include <sstream>
+#include <algorithm>
 
 using namespace std;
-Color::Color(int r, int g, int b) :
+Color::Color(unsigned short r, unsigned short g, unsigned short b) :
 	R(r), G(g), B(b) {
 }
 
@@ -21,6 +22,12 @@ string Color::toString() {
 //////////////////////////////////////////////////////////////////////////////
 // Vector
 /////////////////////////////////////////////////////////////////////////////
+
+inline
+float clamp(const float& lo, const float& hi, const float& v)
+{
+	return std::max(lo, std::min(hi, v));
+}
 
 Vector::Vector(float x, float y, float z) :
 	_array{ x, y, z } {
@@ -57,9 +64,29 @@ Vector Vector::operator+(const Vector& other) const
 	return Vector(x() + other.x(), y() + other.y(), z() + other.z());
 }
 
+Vector& Vector::operator+=(const Vector& other)
+{
+	_array[0] += other.x();
+	_array[1] += other.y();
+	_array[2] += other.z();
+	return *this;
+}
+
 Vector Vector::operator*(float scalar) const
 {
 	return Vector(x() * scalar, y() * scalar, z() * scalar);
+}
+Vector& Vector::operator*=(float scalar)
+{
+	_array[0] *= scalar;
+	_array[1] *= scalar;
+	_array[2] *= scalar;
+	return *this;
+}
+
+Vector Vector::operator/(float scalar) const
+{
+	return Vector(x() / scalar, y() / scalar, z() / scalar);
 }
 
 Vector Vector::operator-(const Vector& other) const
@@ -117,7 +144,10 @@ float Vector::dot(const Vector& other) const
 
 Color Vector::toColor(int maxColorComponent) const
 {
-	return Color((int)(abs(x()) * maxColorComponent), (int)(abs(y()) * maxColorComponent), (int)(abs(z()) * maxColorComponent));
+	unsigned short r = (unsigned short)(maxColorComponent * clamp(0, 1, x()));
+	unsigned short g = (unsigned short)(maxColorComponent * clamp(0, 1, y()));
+	unsigned short b = (unsigned short)(maxColorComponent * clamp(0, 1, z()));
+	return {r, g, b};
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -130,10 +160,16 @@ Triangle::Triangle(const Vector& v0, const Vector& v1, const Vector& v2) :
 	recalc();
 }
 
-float Triangle::distance(const Vector& cameraPosition) const
+float Triangle::distance(const Vector& origin) const
 {
 	// Could be precalculated in later stage
-	return _normal.dot(V0 - cameraPosition);
+	return _normal.dot(V0 - origin);
+}
+
+Vector Triangle::tst() const
+{
+
+	return (V1 - V0).cross(V2 - V0).normalize();
 }
 
 void Triangle::recalc()
@@ -151,14 +187,14 @@ Vector Triangle::normal() const
 	return _normal;
 }
 
-void Triangle::setColor(const Color& color)
+void Triangle::setColor(const Vector& color)
 {
 	_color = color;
 }
 
 Color Triangle::color() const
 {
-	return _color;
+	return _color.toColor(255);
 }
 
 float Triangle::area() {

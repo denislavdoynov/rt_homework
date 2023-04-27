@@ -7,7 +7,17 @@ PPMFile::PPMFile(const string& filename, int imageWidth, int imageHeight, int ma
 	_ppmFileStream << "P3" << endl;
 	_ppmFileStream << imageWidth << " " << imageHeight << endl;
 	_ppmFileStream << maxColorComponent << endl;
+	_maxColorComponent = maxColorComponent;
 }
+
+void PPMFile::writeFrameBuffer(const vector<Vector>& framebuffer) 
+{
+	for (const auto& item : framebuffer) {
+		_ppmFileStream << item.toColor(_maxColorComponent).toString();
+	}
+	_ppmFileStream << std::endl;
+}
+
 
 PPMFile::~PPMFile() {
 	_ppmFileStream.close();

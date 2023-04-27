@@ -6,7 +6,7 @@
 #include <iostream>
 #include <sstream>
 
-#define TASK_7
+#define TASK_8
 
 int main() {
 	srand((unsigned int)time(NULL));
@@ -93,13 +93,13 @@ int main() {
 		scene.addGeometry(t2);
 
 		scene.camera().pan(30);
-		renderer.render("output\\task6_1.ppm");
+		renderer.renderScene("output\\task6_1.ppm");
 		
 		scene.camera().pan(-30);
-		renderer.render("output\\task6_2.ppm");
+		renderer.renderScene("output\\task6_2.ppm");
 
 		scene.camera().truck({-2, 0, 0});
-		renderer.render("output\\task6_2_1.ppm");
+		renderer.renderScene("output\\task6_2_1.ppm");
 			
 		float panRotation = 0.f;
 		float step = 2.f;
@@ -111,7 +111,7 @@ int main() {
 			std::stringstream output;
 			output << "output\\task6_3_" << i << ".ppm";
 			scene.camera().pan(panRotation);
-			renderer.render(output.str());
+			renderer.renderScene(output.str());
 		}
 	}
 
@@ -120,24 +120,44 @@ int main() {
 #ifdef TASK_7
 	Scene scene;
 	Renderer renderer(scene);
-	if(scene.loadScene("input\\scene0.crtscene")) {
-		renderer.render("output\\task7_0.ppm");
+	if(scene.loadScene("input\\task7\\scene0.crtscene")) {
+		renderer.renderScene("output\\task7_0.ppm");
 	}
-	if (scene.loadScene("input\\scene1.crtscene")) {
-		renderer.render("output\\task7_1.ppm");
-	}
-
-	if (scene.loadScene("input\\scene2.crtscene")) {
-		renderer.render("output\\task7_2.ppm");
+	if (scene.loadScene("input\\task7\\scene1.crtscene")) {
+		renderer.renderScene("output\\task7_1.ppm");
 	}
 
-	if (scene.loadScene("input\\scene3.crtscene")) {
-		renderer.render("output\\task7_3.ppm");
+	if (scene.loadScene("input\\task7\\scene2.crtscene")) {
+		renderer.renderScene("output\\task7_2.ppm");
 	}
 
-	if (scene.loadScene("input\\scene4.crtscene")) {
-		renderer.render("output\\task7_4.ppm");
+	if (scene.loadScene("input\\task7\\scene3.crtscene")) {
+		renderer.renderScene("output\\task7_3.ppm");
 	}
+
+	if (scene.loadScene("input\\task7\\scene4.crtscene")) {
+		renderer.renderScene("output\\task7_4.ppm");
+	}
+#endif
+
+#ifdef TASK_8
+	Scene scene;
+	Renderer renderer(scene);
+	if (scene.loadScene("input\\task8\\scene0.crtscene")) {
+		double passedTime = renderer.renderScene("output\\task8\\task8_0.ppm");
+		fprintf(stderr, "\rDone: %.2f (sec)\n", passedTime / 1000);
+	}
+	/*if (scene.loadScene("input\\task8\\scene1.crtscene")) {
+		renderer.renderScene("output\\task8\\task8_1.ppm");
+	}
+	/*
+	if (scene.loadScene("input\\task8\\scene2.crtscene")) {
+		renderer.renderScene("output\\task8\\task8_2.ppm");
+	}
+
+	/*if (scene.loadScene("input\\task8\\scene3.crtscene")) {
+		renderer.renderScene("output\\task8\\task8_3.ppm");
+	}*/
 #endif
 
 	return 0;

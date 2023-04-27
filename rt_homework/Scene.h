@@ -3,7 +3,6 @@
 #include "Shape.h"
 #include "Camera.h"
 #include <vector>
-#include "rapidjson/document.h"
 
 class Scene
 {
@@ -35,29 +34,39 @@ public:
 		TriangleIndexes TriangleIndexes;
 	};
 
+	struct Light
+	{
+		static constexpr const char* JSON_LIGHTS = "lights";
+		static constexpr const char* JSON_LIGHTS_INTENSITY = "intensity";
+		static constexpr const char* JSON_LIGHTS_POSITION = "position";
+
+		Vector Position;
+		float Intensity = 0.f;
+	};
+
+	using Lights = std::vector<Light>;
+	using GeometryObjects = std::vector<Mesh>;
+
 	Scene() = default;
 	Scene(int imageWidth, int imageHeight);
+	void addLight(Light&& light);
+	void addMesh(Mesh&& mesh);
 	void addGeometry(const Triangle& triangle);
 	void compileGeometry();
 	bool loadScene(const std::string filename);
 
 	Camera& camera() { return _camera; }
-	const Settings& settings() const { return _settings; }
+	Settings& settings() { return _settings; }
 	const Triangles& triangles() const { return _triangles; }
+	const Lights& lights() const { return _lights; }
 
 private:
-	rapidjson::Document getJsonDoc(const std::string filename);
-	Vector loadVector(const rapidjson::Value::ConstArray& vecArray);
-	void loadVectors(const rapidjson::Value::ConstArray& vecArray, Vertices& vertices);
-	void loadTriangles(const rapidjson::Value::ConstArray& vecArray, TriangleIndexes& triangles);
-	Matrix loadMatrix(const rapidjson::Value::ConstArray& vecArray);
-
 	void cleanup();
 
 private:
 	Triangles _triangles;
 	Camera _camera;
 	Settings _settings;
-
-	std::vector<Mesh> _goemetryObjects;
+	GeometryObjects _goemetryObjects;
+	Lights _lights;
 };

@@ -3,19 +3,19 @@
  
 class Scene;
 
-constexpr float ROUNDING_ERROR_FLOAT = 0.0001f;
-
 class Renderer
 {
 public:
 	Renderer(Scene& scene);
-	void renderScene(const std::string& filename);
+	double renderScene(const std::string& filename);
 
 private:
-	inline bool equals(const float a, const float b, const float tolerance = ROUNDING_ERROR_FLOAT);
-	Color traceRay(float x, float y);
+	inline float getArea(float radius) const;
+	Vector castRay(float x, float y) const;
 
 private:
 	Scene& _scene;
+	float _shadowBias = 10.5f;
+	Vector _alberdo{1.0f, 0.5f, 0.5f};
 };
 

@@ -3,15 +3,17 @@
 #include <string>
 #include <iostream>
 
+const float PI = 3.14159265358979f;
+
 struct Color {
 	Color() = default;
-	Color(int r, int g, int b);
+	Color(unsigned short r, unsigned short g, unsigned short b);
 	static Color random(int maxColorComponent);
 	std::string toString();
 
-	int R = 0;
-	int G = 0;
-	int B = 0;
+	unsigned short R = 0;
+	unsigned short G = 0;
+	unsigned short B = 0;
 };
 
 struct Vector {
@@ -23,8 +25,11 @@ struct Vector {
 	float operator[](int index) const;
 	float& operator[](int index);
 	Vector operator+(const Vector& other) const;
+	Vector& operator+=(const Vector& other);
 	Vector operator-(const Vector& other) const;
 	Vector operator*(float scalar) const;
+	Vector& operator*=(float scalar);
+	Vector operator/(float scalar) const;
 	friend std::ostream& operator<<(std::ostream& os, const Vector& other);
 
 	Vector getNDC(float imageWidth, float imageHeight) const;
@@ -34,6 +39,7 @@ struct Vector {
 	float magnitude() const;
 	Vector cross(const Vector& other) const;
 	float dot(const Vector& other) const;
+	bool isZero() { return x() == 0 && y() == 0 && z() == 0; }
 	//Vector cross(float x, float y, float z) const;
 	Color toColor(int maxColorComponent) const;
 
@@ -72,11 +78,13 @@ class Camera;
 struct Triangle {
 	Triangle() = default;
 	Triangle(const Vector& v0, const Vector& v1, const Vector& v2);
+	
+	Vector tst() const;
 
 	Vector normal() const;
 	Color color() const;
-	void setColor(const Color& color);
-	float distance(const Vector& cameraPosition) const;
+	void setColor(const Vector& color);
+	float distance(const Vector& origin) const;
 	
 	float area();
 	// Recalculate normal and edge vectors
@@ -92,5 +100,5 @@ private:
 	Vector _vE0;
 	Vector _vE1;
 	Vector _vE2;
-	Color _color{ 255, 255, 255 };
+	Vector _color{ 1.f, 1.f, 1.f };
 };
