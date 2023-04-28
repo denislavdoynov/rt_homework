@@ -16,10 +16,16 @@ void Camera::setMatrix(const Matrix& rotMatrix)
     _rotation = rotMatrix;
 }
 
-void Camera::truck(const Vector& move)
-{
-    auto moveinWorldSpace = _rotation * move;
-    _position = _position + moveinWorldSpace;
+void Camera::truck(float f) {
+    _position += _rotation * Vector(f, 0.f, 0.f);
+}
+
+void Camera::dolly(float f) {
+    _position += _rotation * Vector(0.f, 0.f, -f);
+}
+
+void Camera::boom(float f) {
+    _position += _rotation * Vector(0.f, f, 0.f);
 }
 
 void Camera::pan(const float degs)

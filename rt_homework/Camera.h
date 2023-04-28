@@ -9,7 +9,10 @@ public:
 	static constexpr const char* JSON_CAMERA_MATRIX = "matrix";
 	static constexpr const char* JSON_CAMERA_POSITION = "position";
 	
-	void truck(const Vector& move);
+	void truck(float f);
+	void dolly(float f);
+	void boom(float f);
+
 	void pan(const float degs);
 	void tilt(const float degs);
 	void roll(const float degs);
