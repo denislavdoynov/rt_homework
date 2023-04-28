@@ -14,7 +14,7 @@ class Renderer
 {
 public:
 	Renderer(Scene& scene);
-	double renderScene(const std::string& filename);
+	void renderScene(const std::string& filename);
 
 private:
 	Color castRay(float x, float y) const;
@@ -22,7 +22,7 @@ private:
 	bool tracePrimary(const Ray& ray, Intersaction& intersaction) const;
 	
 private:
-	Vector generateRayDirection(float x, float y) const;
+	Vector primaryRayDirection(float x, float y) const;
 	bool trace(const Ray& ray, Intersaction* intersaction, bool shadowRay = false) const;
 
 private:

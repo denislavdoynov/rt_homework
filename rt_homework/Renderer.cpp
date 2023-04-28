@@ -4,6 +4,8 @@
 #include "Common.h"
 #include "Ray.h"
 #include "Utils.h"
+#include "FrameBuffer.h"
+
 #include <chrono>
 #include <assert.h>
 
@@ -12,27 +14,31 @@ Renderer::Renderer(Scene& scene) :
 {
 }
 
-double Renderer::renderScene(const std::string& filename)
+void Renderer::renderScene(const std::string& filename)
 {
     auto timeStart = std::chrono::high_resolution_clock::now();
 
     const Scene::Settings& settings = _scene.settings();
-    std::vector<Vector> framebuffer;    
-    framebuffer.reserve(settings.ImageWidth * settings.ImageHeight);
+    FrameBuffer framebuffer(settings.ImageWidth, settings.ImageHeight);
     for (int y = 0; y < settings.ImageHeight; ++y) {
         for (int x = 0; x < settings.ImageWidth; ++x) {
-            framebuffer.emplace_back(castRay((float)x, (float)y));
+            framebuffer.push(castRay((float)x, (float)y));
         }
     }
-    	
+
+    auto timeEnd = std::chrono::high_resolution_clock::now();
+    auto passedTime = std::chrono::duration<double, std::milli>(timeEnd - timeStart).count();
+    std::cout << "Render " << _scene.name() << " done in: " << passedTime << "ms" << std::endl;
+
+    timeStart = std::chrono::high_resolution_clock::now();
+
     // Pixels rendered so write to file
     PPMFile file(filename, settings.ImageWidth, settings.ImageHeight, MAX_COLOR_COMPONENT);
     file.writeFrameBuffer(framebuffer);
 	
-    auto timeEnd = std::chrono::high_resolution_clock::now();
-    auto passedTime = std::chrono::duration<double, std::milli>(timeEnd - timeStart).count();
-
-    return passedTime;
+    timeEnd = std::chrono::high_resolution_clock::now();
+    passedTime = std::chrono::duration<double, std::milli>(timeEnd - timeStart).count();
+    std::cout << "Write " << filename << " done in: " << passedTime << "ms" << std::endl;
 }
 
 bool Renderer::traceShadow(const Ray& ray) const 
@@ -54,12 +60,12 @@ bool Renderer::trace(const Ray& ray, Intersaction* intersaction, bool shadowRay)
 
     float minPointDistance = std::numeric_limits<float>::max();
     for (const auto& triangle : _scene.triangles()) {
-        float normalDotRayDir = ray.direction().dot(triangle.normal());
+        float rayProj = ray.direction().dot(triangle.normal());
         // If generated ray is not paralel to triangle plane
-        if (!Math::equals(normalDotRayDir, 0.0f)) {
+        if (!Utils::equals(rayProj, 0.0f)) {
             float distance = triangle.distance(ray.origin());
-            float t = distance / normalDotRayDir;
-            // Check if triangle is not not behind the ray
+            float t = distance / rayProj;
+            // Check if triangle is not behind the ray
             if (t > 0.f)
             {
                 Vector p = ray.origin() + (ray.direction() * t);
@@ -84,12 +90,9 @@ bool Renderer::trace(const Ray& ray, Intersaction* intersaction, bool shadowRay)
 
 Color Renderer::castRay(float x, float y) const
 {
-    // Primery ray direction
-    Vector rayDirection = generateRayDirection(x, y);
-
     // Trace primary ray
     Intersaction intersaction;
-    const Ray ray(_scene.camera().position(), rayDirection);
+    const Ray ray(_scene.camera().position(), primaryRayDirection(x, y));
     if (tracePrimary(ray, intersaction)) {
         Color finalColor;
         for (const auto& light : _scene.lights()) {
@@ -114,11 +117,13 @@ Color Renderer::castRay(float x, float y) const
     return _scene.settings().BackGroundColor;
 }
 
-Vector Renderer::generateRayDirection(float x, float y) const
+Vector Renderer::primaryRayDirection(float x, float y) const
 {
     const Camera& camera = _scene.camera();
-    Vector rayDirection(x, y, -camera.planeDistance());
     const Scene::Settings& settings = _scene.settings();
+    
+    // Calculate coordinates in 2d space
+    Vector rayDirection(x, y, -camera.planeDistance());
     rayDirection = rayDirection.getCenter();
     rayDirection = rayDirection.getNDC((float)settings.ImageWidth, (float)settings.ImageHeight);
     rayDirection = rayDirection.getWorldSpace();
@@ -128,8 +133,8 @@ Vector Renderer::generateRayDirection(float x, float y) const
     rayDirection.setX(rayDirection.x() * aspectRatio);
 
     // Set camera rotation matrix
+    rayDirection.normalize();
     rayDirection = camera.rotation() * rayDirection;
-    rayDirection = rayDirection.normalize();
 
     return rayDirection;
 }

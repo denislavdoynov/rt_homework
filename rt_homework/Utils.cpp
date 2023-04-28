@@ -23,12 +23,6 @@ string ColorRGB::toString() {
 // Vector
 /////////////////////////////////////////////////////////////////////////////
 
-inline
-float clamp(const float& lo, const float& hi, const float& v)
-{
-	return std::max(lo, std::min(hi, v));
-}
-
 Vector::Vector(float x, float y, float z) :
 	_array{ x, y, z } {
 }
@@ -129,7 +123,15 @@ float Vector::magnitude() const
 	return sqrt((_array[0] * _array[0]) + (_array[1] * _array[1]) + (_array[2] * _array[2]));
 }
 
-Vector Vector::normalize() const
+void Vector::normalize()
+{
+	float invertLength = 1.f / magnitude();
+	_array[0] *= invertLength;
+	_array[1] *= invertLength;
+	_array[2] *= invertLength;
+}
+
+Vector Vector::normal() const
 {
 	float invertLength = 1.f / magnitude();
 	return Vector(_array[0] * invertLength, _array[1] * invertLength, _array[2] * invertLength);
@@ -149,9 +151,9 @@ float Vector::dot(const Vector& other) const
 
 ColorRGB Vector::toColor(int maxColorComponent) const
 {
-	unsigned short r = (unsigned short)(maxColorComponent * clamp(0, 1, _array[0]));
-	unsigned short g = (unsigned short)(maxColorComponent * clamp(0, 1, _array[1]));
-	unsigned short b = (unsigned short)(maxColorComponent * clamp(0, 1, _array[2]));
+	unsigned short r = (unsigned short)(maxColorComponent * Utils::clamp(0, 1, _array[0]));
+	unsigned short g = (unsigned short)(maxColorComponent * Utils::clamp(0, 1, _array[1]));
+	unsigned short b = (unsigned short)(maxColorComponent * Utils::clamp(0, 1, _array[2]));
 	return {r, g, b};
 }
 
@@ -171,12 +173,6 @@ float Triangle::distance(const Vector& origin) const
 	return _normal.dot(V0 - origin);
 }
 
-Vector Triangle::tst() const
-{
-
-	return (V1 - V0).cross(V2 - V0).normalize();
-}
-
 void Triangle::recalc()
 {
 	_vE0 = V1 - V0;
@@ -184,7 +180,7 @@ void Triangle::recalc()
 	_vE2 = V0 - V2;
 
 	Vector E1 = V2 - V0;
-	_normal = _vE0.cross(E1).normalize();
+	_normal = _vE0.cross(E1).normal();
 }
 
 Vector Triangle::normal() const
@@ -228,9 +224,9 @@ bool Triangle::checkIntersaction(const Vector& point) const
 	return	true;
 }
 
-Matrix::Matrix(float a1, float a2, float a3,
-	float a4, float a5, float a6,
-	float a7, float a8, float a9) :
+Matrix::Matrix( float a1, float a2, float a3,
+				float a4, float a5, float a6,
+				float a7, float a8, float a9) :
 	_array{ {a1, a2, a3}, 
 			{a4, a5, a6},
 			{a7, a8, a9}
@@ -240,44 +236,42 @@ Matrix::Matrix(float a1, float a2, float a3,
 
 Vector Matrix::operator*(const Vector& other) const
 {
-	Vector res;
-	if(SIZE != other.SIZE)
-		return res;
-
-	for (int i = 0; i < SIZE; i++) {
-		for (int j = 0; j < SIZE; j++) {
-			res[i] += (_array[i][j] * other[j]);
-		}
-	}
-
-	return res;
+	return {
+		_array[0][0] * other.x() + _array[1][0] * other.y() + _array[2][0] * other.z(),
+		_array[0][1] * other.x() + _array[1][1] * other.y() + _array[2][1] * other.z(),
+		_array[0][2] * other.x() + _array[1][2] * other.y() + _array[2][2] * other.z(),
+	};
 }
 Matrix Matrix::operator*(const Matrix& other) const
 {
-	Matrix res;
-	if (SIZE != other.SIZE)
-		return res;
+	return {
+		_array[0][0] * other._array[0][0] + _array[1][0] * other._array[0][1] + _array[2][0] * _array[0][2],
+		_array[0][1] * other._array[0][0] + _array[1][1] * other._array[0][1] + _array[2][1] * _array[0][2],
+		_array[0][2] * other._array[0][0] + _array[1][2] * other._array[0][1] + _array[2][2] * _array[0][2],
 
-	for (int i = 0; i < SIZE; i++) {
-		for (int j = 0; j < SIZE; j++) {
-			res._array[i][j] = 0;
-			for (int k = 0; k < SIZE; k++) {
-				res._array[i][j] += _array[i][k] * other._array[k][j];
-			}
-		}
-	}
+		_array[0][0] * other._array[1][0] + _array[1][0] * other._array[1][1] + _array[2][0] * _array[1][2],
+		_array[0][1] * other._array[1][0] + _array[1][1] * other._array[1][1] + _array[2][1] * _array[1][2],
+		_array[0][2] * other._array[1][0] + _array[1][2] * other._array[1][1] + _array[2][2] * _array[1][2],
 
-	return res;
+		_array[0][0] * other._array[2][0] + _array[1][0] * other._array[2][1] + _array[2][0] * _array[2][2],
+		_array[0][1] * other._array[2][0] + _array[1][1] * other._array[2][1] + _array[2][1] * _array[2][2],
+		_array[0][2] * other._array[2][0] + _array[1][2] * other._array[2][1] + _array[2][2] * _array[2][2]
+	};
 }
 
 
-float Math::getArea(float radius)
+float Utils::getArea(float radius)
 {
 	return 4 * PI * radius * radius;
 }
 
 //! returns if a equals b, taking possible rounding errors into account
-bool Math::equals(const float a, const float b, const float tolerance)
+bool Utils::equals(const float a, const float b, const float tolerance)
 {
 	return (a + tolerance >= b) && (a - tolerance <= b);
+}
+
+float Utils::clamp(const float& lo, const float& hi, const float& v)
+{
+	return std::max(lo, std::min(hi, v));
 }

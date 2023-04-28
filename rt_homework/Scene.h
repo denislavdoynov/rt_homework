@@ -46,8 +46,8 @@ public:
 		float getIllumination(const Point& point, Vector& lightDir) const {
 			lightDir = Position - point;
 			float radius = lightDir.magnitude();
-			lightDir = lightDir.normalize();
-			return Math::getArea(radius);
+			lightDir.normalize();
+			return Utils::getArea(radius);
 
 		}
 	};
@@ -65,6 +65,7 @@ public:
 
 	Camera& camera() { return _camera; }
 	Settings& settings() { return _settings; }
+	std::string& name() { return _sceneFile; }
 	const Triangles& triangles() const { return _triangles; }
 	const Lights& lights() const { return _lights; }
 
@@ -77,4 +78,5 @@ private:
 	Settings _settings;
 	GeometryObjects _goemetryObjects;
 	Lights _lights;
+	std::string _sceneFile;
 };

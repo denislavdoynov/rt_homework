@@ -1,5 +1,5 @@
 #include "PPMFile.h"
-
+#include "FrameBuffer.h"
 using namespace std;
 
 PPMFile::PPMFile(const string& filename, int imageWidth, int imageHeight, int maxColorComponent) :
@@ -10,10 +10,10 @@ PPMFile::PPMFile(const string& filename, int imageWidth, int imageHeight, int ma
 	_maxColorComponent = maxColorComponent;
 }
 
-void PPMFile::writeFrameBuffer(const vector<Vector>& framebuffer) 
+void PPMFile::writeFrameBuffer(const FrameBuffer& framebuffer)
 {
-	for (const auto& item : framebuffer) {
-		_ppmFileStream << item.toColor(_maxColorComponent).toString();
+	for (const auto& pixel : framebuffer.getBuffer()) {
+		_ppmFileStream << pixel.toColor(_maxColorComponent).toString();
 	}
 	_ppmFileStream << std::endl;
 }

@@ -7,12 +7,14 @@ const float PI = 3.14159265358979f;
 
 constexpr float ROUNDING_ERROR_FLOAT = 0.0001f;
 
-class Math
+class Utils
 {
 public:
 	static float getArea(float radius);
 	//! returns if a equals b, taking possible rounding errors into account
 	static bool equals(const float a, const float b, const float tolerance = ROUNDING_ERROR_FLOAT);
+
+	static float clamp(const float& lo, const float& hi, const float& v);
 };
 
 struct ColorRGB {
@@ -46,12 +48,11 @@ struct Vector {
 	Vector getNDC(float imageWidth, float imageHeight) const;
 	Vector getWorldSpace() const;
 	Vector getCenter() const;
-	Vector normalize() const;
+	void normalize();
+	Vector normal() const;
 	float magnitude() const;
 	Vector cross(const Vector& other) const;
 	float dot(const Vector& other) const;
-	bool isZero() { return x() == 0 && y() == 0 && z() == 0; }
-	//Vector cross(float x, float y, float z) const;
 	ColorRGB toColor(int maxColorComponent) const;
 
 	float x() const { return _array[0]; }
@@ -75,9 +76,9 @@ class Matrix
 
 public:
 	Matrix() = default;
-	Matrix(float a1, float a2, float a3,
-		float a4, float a5, float a6,
-		float a7, float a8, float a9);
+	Matrix( float a1, float a2, float a3,
+			float a4, float a5, float a6,
+			float a7, float a8, float a9);
 
 	Vector operator*(const Vector& other) const;
 	Matrix operator*(const Matrix& other) const;
@@ -92,8 +93,6 @@ struct Triangle {
 	Triangle() = default;
 	Triangle(const Vector& v0, const Vector& v1, const Vector& v2);
 	
-	Vector tst() const;
-
 	Vector normal() const;
 	ColorRGB color() const;
 	void setColor(const Vector& color);

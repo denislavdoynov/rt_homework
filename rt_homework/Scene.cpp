@@ -15,6 +15,7 @@ void Scene::cleanup()
     _goemetryObjects.clear();
     _triangles.clear();
     _lights.clear();
+    _sceneFile.clear();
 }
 
 bool Scene::loadScene(const std::string filename)
@@ -23,6 +24,7 @@ bool Scene::loadScene(const std::string filename)
 
     JsonParser file(filename);
     if(file.load(*this)) {
+        _sceneFile = filename;
         compileGeometry();
         return true;
     }
