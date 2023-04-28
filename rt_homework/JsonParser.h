@@ -13,8 +13,8 @@ public:
 private:
 	rapidjson::Document getJsonDoc();
 	Vector loadVector(const rapidjson::Value::ConstArray& vecArray);
-	void loadVectors(const rapidjson::Value::ConstArray& vecArray, Scene::Vertices& vertices);
-	void loadTriangles(const rapidjson::Value::ConstArray& vecArray, Scene::TriangleIndexes& triangles);
+	void loadVectors(const rapidjson::Value::ConstArray& vecArray, Vertices& vertices);
+	void loadTriangles(const rapidjson::Value::ConstArray& vecArray, TriangleIndexes& triangles);
 	Matrix loadMatrix(const rapidjson::Value::ConstArray& vecArray);
 
 	std::string _jsonFile;

@@ -35,7 +35,7 @@ Matrix JsonParser::loadMatrix(const Value::ConstArray& vecArray)
     };
 }
 
-void JsonParser::loadTriangles(const Value::ConstArray& vecArray, Scene::TriangleIndexes& triangles)
+void JsonParser::loadTriangles(const Value::ConstArray& vecArray, TriangleIndexes& triangles)
 {
     for (unsigned int i = 0; i < vecArray.Size(); i += 3) {
         if ((i + 2) >= vecArray.Size())
@@ -49,7 +49,7 @@ void JsonParser::loadTriangles(const Value::ConstArray& vecArray, Scene::Triangl
     }
 }
 
-void JsonParser::loadVectors(const Value::ConstArray& vecArray, Scene::Vertices& vertices)
+void JsonParser::loadVectors(const Value::ConstArray& vecArray, Vertices& vertices)
 {
     for (unsigned int i = 0; i < vecArray.Size(); i += 3) {
         if ((i + 2) >= vecArray.Size())
@@ -87,17 +87,17 @@ bool JsonParser::load(Scene& scene)
     auto& sceneSettings = scene.settings();
     auto& sceneCamera = scene.camera();
 
-    const auto& settingsVal = doc.FindMember(Scene::Settings::JSON_SETTINGS)->value;
+    const auto& settingsVal = doc.FindMember(Settings::JSON_SETTINGS)->value;
     if (!settingsVal.IsNull() && settingsVal.IsObject()) {
-        const auto& bgColor = settingsVal.FindMember(Scene::Settings::JSON_SETTINGS_BG_COLOR)->value;
+        const auto& bgColor = settingsVal.FindMember(Settings::JSON_SETTINGS_BG_COLOR)->value;
         if (bgColor.IsArray()) {
             sceneSettings.BackGroundColor = loadVector(bgColor.GetArray());
         }
 
-        const auto& imageSettings = settingsVal.FindMember(Scene::Settings::JSON_SETTINGS_IMAGE_SETTINGS)->value;
+        const auto& imageSettings = settingsVal.FindMember(Settings::JSON_SETTINGS_IMAGE_SETTINGS)->value;
         if (!imageSettings.IsNull() && imageSettings.IsObject()) {
-            sceneSettings.ImageWidth = imageSettings.FindMember(Scene::Settings::JSON_SETTINGS_WIDTH)->value.GetInt();
-            sceneSettings.ImageHeight = imageSettings.FindMember(Scene::Settings::JSON_SETTINGS_HEIGHT)->value.GetInt();
+            sceneSettings.ImageWidth = imageSettings.FindMember(Settings::JSON_SETTINGS_WIDTH)->value.GetInt();
+            sceneSettings.ImageHeight = imageSettings.FindMember(Settings::JSON_SETTINGS_HEIGHT)->value.GetInt();
         }
     }
 
@@ -114,16 +114,16 @@ bool JsonParser::load(Scene& scene)
         }
     }
 
-    const auto& objects = doc.FindMember(Scene::Mesh::JSON_OBJECTS)->value;
+    const auto& objects = doc.FindMember(Mesh::JSON_OBJECTS)->value;
     if (!objects.IsNull() && objects.IsArray()) {
         for (const auto& object : objects.GetArray()) {
-            Scene::Mesh mesh;
-            const auto& vertices = object.FindMember(Scene::Mesh::JSON_OBJECTS_VERTICES)->value;
+            Mesh mesh;
+            const auto& vertices = object.FindMember(Mesh::JSON_OBJECTS_VERTICES)->value;
             if (vertices.IsArray()) {
                 loadVectors(vertices.GetArray(), mesh.Vertices);
             }
 
-            const auto& triangles = object.FindMember(Scene::Mesh::JSON_OBJECTS_TRIANGLES)->value;
+            const auto& triangles = object.FindMember(Mesh::JSON_OBJECTS_TRIANGLES)->value;
             if (triangles.IsArray()) {
                 loadTriangles(triangles.GetArray(), mesh.TriangleIndexes);
             }
@@ -132,14 +132,14 @@ bool JsonParser::load(Scene& scene)
         }
     }
 
-    const auto& lights = doc.FindMember(Scene::Light::JSON_LIGHTS)->value;
+    const auto& lights = doc.FindMember(Light::JSON_LIGHTS)->value;
     if (!lights.IsNull() && lights.IsArray()) {
         for (const auto& light : lights.GetArray()) {
-            const auto& position = light.FindMember(Scene::Light::JSON_LIGHTS_POSITION)->value;
+            const auto& position = light.FindMember(Light::JSON_LIGHTS_POSITION)->value;
             if (position.IsArray()) {
-                Scene::Light sceneLight;
+                Light sceneLight;
                 sceneLight.Position = loadVector(position.GetArray());
-                sceneLight.Intensity = light.FindMember(Scene::Light::JSON_LIGHTS_INTENSITY)->value.GetFloat();
+                sceneLight.Intensity = light.FindMember(Light::JSON_LIGHTS_INTENSITY)->value.GetFloat();
                 scene.addLight(std::move(sceneLight));
             }           
         }

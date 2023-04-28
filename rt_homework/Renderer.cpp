@@ -18,7 +18,7 @@ void Renderer::renderScene(const std::string& filename)
 {
     auto timeStart = std::chrono::high_resolution_clock::now();
 
-    const Scene::Settings& settings = _scene.settings();
+    const Settings& settings = _scene.settings();
     FrameBuffer framebuffer(settings.ImageWidth, settings.ImageHeight);
     for (int y = 0; y < settings.ImageHeight; ++y) {
         for (int x = 0; x < settings.ImageWidth; ++x) {
@@ -120,7 +120,7 @@ Color Renderer::castRay(float x, float y) const
 Vector Renderer::primaryRayDirection(float x, float y) const
 {
     const Camera& camera = _scene.camera();
-    const Scene::Settings& settings = _scene.settings();
+    const Settings& settings = _scene.settings();
     
     // Calculate coordinates in 2d space
     Vector rayDirection(x, y, -camera.planeDistance());
