@@ -4,16 +4,16 @@
 #include <algorithm>
 
 using namespace std;
-Color::Color(unsigned short r, unsigned short g, unsigned short b) :
+ColorRGB::ColorRGB(unsigned short r, unsigned short g, unsigned short b) :
 	R(r), G(g), B(b) {
 }
 
-/*static*/ Color Color::random(int maxColorComponent)
+/*static*/ ColorRGB ColorRGB::random(int maxColorComponent)
 {
-	return Color(rand() % maxColorComponent, rand() % maxColorComponent, rand() % maxColorComponent);
+	return ColorRGB(rand() % maxColorComponent, rand() % maxColorComponent, rand() % maxColorComponent);
 }
 
-string Color::toString() {
+string ColorRGB::toString() {
 	stringstream ss;
 	ss << R << " " << G << " " << B << "\t";
 	return ss.str();
@@ -35,9 +35,9 @@ Vector::Vector(float x, float y, float z) :
 
 Vector& Vector::operator=(const Vector& other)
 {
-	_array[0] = other.x();
-	_array[1] = other.y();
-	_array[2] = other.z();
+	_array[0] = other._array[0];
+	_array[1] = other._array[1];
+	_array[2] = other._array[2];
 	return *this;
 }
 
@@ -61,20 +61,27 @@ float Vector::operator[](int index) const
 
 Vector Vector::operator+(const Vector& other) const
 {
-	return Vector(x() + other.x(), y() + other.y(), z() + other.z());
+	return Vector(_array[0] + other._array[0], _array[1] + other._array[1], _array[2] + other._array[2]);
 }
 
 Vector& Vector::operator+=(const Vector& other)
 {
-	_array[0] += other.x();
-	_array[1] += other.y();
-	_array[2] += other.z();
+	_array[0] += other._array[0];
+	_array[1] += other._array[1];
+	_array[2] += other._array[2];
 	return *this;
+}
+
+bool Vector::operator==(const Vector& other)
+{
+	return  _array[0] == other._array[0] &&
+			_array[1] == other._array[1] &&
+			_array[2] == other._array[2];
 }
 
 Vector Vector::operator*(float scalar) const
 {
-	return Vector(x() * scalar, y() * scalar, z() * scalar);
+	return Vector(_array[0] * scalar, _array[1] * scalar, _array[2] * scalar);
 }
 Vector& Vector::operator*=(float scalar)
 {
@@ -86,67 +93,65 @@ Vector& Vector::operator*=(float scalar)
 
 Vector Vector::operator/(float scalar) const
 {
-	return Vector(x() / scalar, y() / scalar, z() / scalar);
+	return Vector(_array[0] / scalar, _array[1] / scalar, _array[2] / scalar);
 }
 
 Vector Vector::operator-(const Vector& other) const
 {
-	return Vector(x() - other.x(), y() - other.y(), z() - other.z());
+	return Vector(_array[0] - other._array[0], _array[1] - other._array[1], _array[2] - other._array[2]);
 }
 
 ostream& operator<<(ostream& os, const Vector& other)
 {
-	 os << other.x() << ", " << other.y() << ", " << other.z();
+	 os << other._array[0] << ", " << other._array[1] << ", " << other._array[2];
 	 return os;
 }
 
 Vector Vector::getNDC(float imageWidth, float imageHeight) const
 {
 	// Convert to NDC
-	return Vector(x() / imageWidth, y() / imageHeight, z());
+	return Vector(_array[0] / imageWidth, _array[1] / imageHeight, _array[2]);
 }
 
 Vector Vector::getWorldSpace() const
 {
 	// Convert to World space
-	return Vector((2.0f * x()) - 1.0f, 1.0f - (2.0f * y()), z());
+	return Vector((2.0f * _array[0]) - 1.0f, 1.0f - (2.0f * _array[1]), _array[2]);
 }
 
 Vector Vector::getCenter() const
 {
-	return Vector(x() + 0.5f, y() + 0.5f, z());
+	return Vector(_array[0] + 0.5f, _array[1] + 0.5f, _array[2]);
 }
 
 float Vector::magnitude() const 
 {
-	return sqrt((x() * x()) + (y() * y()) + (z() * z()));
+	return sqrt((_array[0] * _array[0]) + (_array[1] * _array[1]) + (_array[2] * _array[2]));
 }
 
 Vector Vector::normalize() const
 {
 	float invertLength = 1.f / magnitude();
-	return Vector(x() * invertLength, y() * invertLength, z() * invertLength);
+	return Vector(_array[0] * invertLength, _array[1] * invertLength, _array[2] * invertLength);
 }
 
 Vector Vector::cross(const Vector& other) const
 {
-	float detX = (y() * other.z()) - (z() * other.y());
-	float detY = ((x() * other.z()) - (z() * other.x())) * -1.f;
-	float detZ = (x() * other.y()) - (y() * other.x());
-
-	return Vector(detX, detY, detZ);
+	return { _array[1] * other._array[2] - _array[2] * other._array[1], 
+			 (_array[0] * other._array[2] - _array[2] * other._array[0])*-1, 
+			 _array[0]* other._array[1] - _array[1] * other._array[0] };
 }
 
 float Vector::dot(const Vector& other) const
 {
-	return (x() * other.x()) + (y() * other.y()) + (z() * other.z());
+	return (_array[0] * other._array[0]) + (_array[1] * other._array[1]) + (_array[2] * other._array[2]);
 }
 
-Color Vector::toColor(int maxColorComponent) const
+ColorRGB Vector::toColor(int maxColorComponent) const
 {
-	unsigned short r = (unsigned short)(maxColorComponent * clamp(0, 1, x()));
-	unsigned short g = (unsigned short)(maxColorComponent * clamp(0, 1, y()));
-	unsigned short b = (unsigned short)(maxColorComponent * clamp(0, 1, z()));
+	unsigned short r = (unsigned short)(maxColorComponent * clamp(0, 1, _array[0]));
+	unsigned short g = (unsigned short)(maxColorComponent * clamp(0, 1, _array[1]));
+	unsigned short b = (unsigned short)(maxColorComponent * clamp(0, 1, _array[2]));
 	return {r, g, b};
 }
 
@@ -192,7 +197,7 @@ void Triangle::setColor(const Vector& color)
 	_color = color;
 }
 
-Color Triangle::color() const
+ColorRGB Triangle::color() const
 {
 	return _color.toColor(255);
 }
@@ -206,17 +211,17 @@ bool Triangle::checkIntersaction(const Vector& point) const
 {
 	Vector v0P = point - V0;
 	// Check if P is on the left of E0
-	if(_normal.dot(_vE0.cross(v0P)) <= 0)
+	if(_normal.dot(_vE0.cross(v0P)) < 0)
 		return false;
 
 	Vector v1P = point - V1;
 	// Check if P is on the left of E1
-	if(_normal.dot(_vE1.cross(v1P)) <= 0)
+	if(_normal.dot(_vE1.cross(v1P)) < 0)
 		return false;
 	
 	Vector v2P = point - V2;	
 	// Check if P is on the left of E2
-	if(_normal.dot(_vE2.cross(v2P)) <= 0)
+	if(_normal.dot(_vE2.cross(v2P)) < 0)
 		return false;
 
 	// Got intersaction
@@ -263,4 +268,16 @@ Matrix Matrix::operator*(const Matrix& other) const
 	}
 
 	return res;
+}
+
+
+float Math::getArea(float radius)
+{
+	return 4 * PI * radius * radius;
+}
+
+//! returns if a equals b, taking possible rounding errors into account
+bool Math::equals(const float a, const float b, const float tolerance)
+{
+	return (a + tolerance >= b) && (a - tolerance <= b);
 }

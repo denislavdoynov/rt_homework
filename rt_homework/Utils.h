@@ -5,10 +5,20 @@
 
 const float PI = 3.14159265358979f;
 
-struct Color {
-	Color() = default;
-	Color(unsigned short r, unsigned short g, unsigned short b);
-	static Color random(int maxColorComponent);
+constexpr float ROUNDING_ERROR_FLOAT = 0.0001f;
+
+class Math
+{
+public:
+	static float getArea(float radius);
+	//! returns if a equals b, taking possible rounding errors into account
+	static bool equals(const float a, const float b, const float tolerance = ROUNDING_ERROR_FLOAT);
+};
+
+struct ColorRGB {
+	ColorRGB() = default;
+	ColorRGB(unsigned short r, unsigned short g, unsigned short b);
+	static ColorRGB random(int maxColorComponent);
 	std::string toString();
 
 	unsigned short R = 0;
@@ -26,6 +36,7 @@ struct Vector {
 	float& operator[](int index);
 	Vector operator+(const Vector& other) const;
 	Vector& operator+=(const Vector& other);
+	bool operator==(const Vector& other);
 	Vector operator-(const Vector& other) const;
 	Vector operator*(float scalar) const;
 	Vector& operator*=(float scalar);
@@ -41,7 +52,7 @@ struct Vector {
 	float dot(const Vector& other) const;
 	bool isZero() { return x() == 0 && y() == 0 && z() == 0; }
 	//Vector cross(float x, float y, float z) const;
-	Color toColor(int maxColorComponent) const;
+	ColorRGB toColor(int maxColorComponent) const;
 
 	float x() const { return _array[0]; }
 	float y() const { return _array[1]; }
@@ -55,6 +66,8 @@ private:
 	float _array[SIZE] { 0.f, 0.f, 0.f };
 };
 
+typedef Vector Point;
+typedef Vector Color;
 
 class Matrix
 {
@@ -82,7 +95,7 @@ struct Triangle {
 	Vector tst() const;
 
 	Vector normal() const;
-	Color color() const;
+	ColorRGB color() const;
 	void setColor(const Vector& color);
 	float distance(const Vector& origin) const;
 	

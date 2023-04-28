@@ -24,7 +24,7 @@ Circle::Circle(float radius) :
 	Drawable(IMAGE_WIDTH, IMAGE_HEIGHT),
 	_radius(radius* radius)
 {
-	_color = Color::random(MAX_COLOR_COMPONENT);
+	_color = ColorRGB::random(MAX_COLOR_COMPONENT);
 }
 
 void Circle::setPostion(float x, float y) {
@@ -32,13 +32,13 @@ void Circle::setPostion(float x, float y) {
 	_cy = y;
 }
 
-Color Circle::pixelColor(float x, float y) {
+ColorRGB Circle::pixelColor(float x, float y) {
 	float distance = (_cx - x) * (_cx - x) + (_cy - y) * (_cy - y);
 	if (distance <= _radius) {
 		return _color;
 	}
 	else {
-		return Color(30, 30, 30);
+		return ColorRGB(30, 30, 30);
 	}
 }
 
@@ -49,7 +49,7 @@ Rectangles::Rectangles(int vCount, int hCount) :
 	_boxHeight = vCount > 0 ? (float)_imageHeight / vCount : (float)_imageHeight;
 }
 
-void Rectangles::setColors(std::map<unsigned int, Color>&& colors)
+void Rectangles::setColors(std::map<unsigned int, ColorRGB>&& colors)
 {
 	if(colors.empty()) {
 		return;
@@ -58,13 +58,13 @@ void Rectangles::setColors(std::map<unsigned int, Color>&& colors)
 	_rectColors.swap(colors);
 }
 
-Color Rectangles::pixelColor(float x, float y) {
+ColorRGB Rectangles::pixelColor(float x, float y) {
 	short boxX = (short)(x / _boxWidth);
 	short boxY = (short)(y / _boxHeight);
 	unsigned int idx = (boxY << 16) | boxX;
 
 	if (_useRandomColors && ((int)x % 2 || (int)y % 2)) {
-		return Color::random(MAX_COLOR_COMPONENT);
+		return ColorRGB::random(MAX_COLOR_COMPONENT);
 	}
 	else {
 		auto it = _rectColors.find(idx);
@@ -72,7 +72,7 @@ Color Rectangles::pixelColor(float x, float y) {
 			return it->second;
 		}
 		else {
-			auto it = _rectColors.emplace(idx, Color::random(MAX_COLOR_COMPONENT));
+			auto it = _rectColors.emplace(idx, ColorRGB::random(MAX_COLOR_COMPONENT));
 			return it.first->second;
 		}
 	}

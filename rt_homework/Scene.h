@@ -19,7 +19,7 @@ public:
 		static constexpr const char* JSON_SETTINGS_WIDTH = "width";
 		static constexpr const char* JSON_SETTINGS_HEIGHT = "height";
 
-		Vector BackGroundColor;
+		Color BackGroundColor;
 		int ImageWidth = 0;
 		int ImageHeight = 0;
 	};
@@ -40,8 +40,16 @@ public:
 		static constexpr const char* JSON_LIGHTS_INTENSITY = "intensity";
 		static constexpr const char* JSON_LIGHTS_POSITION = "position";
 
-		Vector Position;
+		Point Position;
 		float Intensity = 0.f;
+
+		float getIllumination(const Point& point, Vector& lightDir) const {
+			lightDir = Position - point;
+			float radius = lightDir.magnitude();
+			lightDir = lightDir.normalize();
+			return Math::getArea(radius);
+
+		}
 	};
 
 	using Lights = std::vector<Light>;

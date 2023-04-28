@@ -8,7 +8,7 @@ class Drawable
 public:
 	Drawable(int width, int height);
 
-	virtual Color pixelColor(float posX, float posY) = 0;
+	virtual ColorRGB pixelColor(float posX, float posY) = 0;
 	virtual void draw(const std::string& filename);
 
 protected:
@@ -21,10 +21,10 @@ class Circle : public Drawable
 public:
 	Circle(float radius);
 	void setPostion(float x, float y);
-	Color pixelColor(float x, float y) override;
+	ColorRGB pixelColor(float x, float y) override;
 
 private:
-	Color _color;
+	ColorRGB _color;
 	float _radius = 0.f;
 	float _cx = 0.f;
 	float _cy = 0.f;
@@ -34,13 +34,13 @@ class Rectangles : public Drawable
 {
 public:
 	Rectangles(int vCount, int hCount);
-	void setColors(std::map<unsigned int, Color>&& colors);
-	Color pixelColor(float x, float y) override;
+	void setColors(std::map<unsigned int, ColorRGB>&& colors);
+	ColorRGB pixelColor(float x, float y) override;
 
 private:
 	float _boxWidth = 0;
 	float _boxHeight = 0;
-	std::map<unsigned int, Color> _rectColors;
+	std::map<unsigned int, ColorRGB> _rectColors;
 	bool _useRandomColors = true;
 	
 };

@@ -16,6 +16,7 @@ public:
 
 	const Matrix& rotation() const { return _rotation; }
 	const Vector& position() const { return _position; }
+	float planeDistance() const { return _planeDistance; }
 	void setPosition(const Vector& position);
 	void setMatrix(const Matrix& rotMatrix);
 
@@ -25,4 +26,7 @@ private:
 private:
 	Vector _position;
 	Matrix _rotation;
+
+	// Distance to the plane from camera
+	float _planeDistance = 1.f;
 };

@@ -145,19 +145,22 @@ int main() {
 	Renderer renderer(scene);
 	if (scene.loadScene("input\\task8\\scene0.crtscene")) {
 		double passedTime = renderer.renderScene("output\\task8\\task8_0.ppm");
-		fprintf(stderr, "\rDone: %.2f (sec)\n", passedTime / 1000);
+		std::cout << "Done: " << passedTime / 1000  << "secs" << std::endl;
 	}
-	/*if (scene.loadScene("input\\task8\\scene1.crtscene")) {
-		renderer.renderScene("output\\task8\\task8_1.ppm");
+	if (scene.loadScene("input\\task8\\scene1.crtscene")) {
+		double passedTime = renderer.renderScene("output\\task8\\task8_1.ppm");
+		std::cout << "Done: " << passedTime / 1000 << "secs" << std::endl;
 	}
-	/*
+	
 	if (scene.loadScene("input\\task8\\scene2.crtscene")) {
-		renderer.renderScene("output\\task8\\task8_2.ppm");
+		double passedTime = renderer.renderScene("output\\task8\\task8_2.ppm");
+		std::cout << "Done: " << passedTime / 1000 << "secs" << std::endl;
 	}
 
-	/*if (scene.loadScene("input\\task8\\scene3.crtscene")) {
-		renderer.renderScene("output\\task8\\task8_3.ppm");
-	}*/
+	if (scene.loadScene("input\\task8\\scene3.crtscene")) {
+		double passedTime = renderer.renderScene("output\\task8\\task8_3.ppm");
+		std::cout << "Done: " << passedTime / 1000 << "secs" << std::endl;
+	}
 #endif
 
 	return 0;

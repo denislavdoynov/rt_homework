@@ -1,21 +1,17 @@
 #pragma once
 
-#include "Scene.h"
-
-constexpr float ROUNDING_ERROR_FLOAT = 0.0001f;
+#include "Utils.h"
 
 class Ray
 {
 public:
-    Ray() = delete;
-    Ray(const Scene::Triangles& triangles);
-    const Triangle* trace(const Vector& origin, const Vector& rayDirection, Vector& hitPoint);
-    void setShadowRay(bool shadowRay) { _shadowRay = shadowRay; } 
+    Ray(const Vector& origin, const Vector& direction);
+
+    const Vector& origin() const { return _origin; }
+    const Vector& direction() const { return _direction; }
 
 private:
-    inline bool equals(const float a, const float b, const float tolerance = ROUNDING_ERROR_FLOAT);
-
-    const Scene::Triangles& _triangles;
-    bool _shadowRay = false;
+    const Vector _origin;
+    const Vector _direction;
 };
 
