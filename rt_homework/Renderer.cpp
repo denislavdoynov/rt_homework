@@ -9,6 +9,8 @@
 #include <chrono>
 #include <assert.h>
 
+#define MULTI_THREADED
+
 Renderer::Renderer(Scene& scene) :
     _scene(scene)
 {
@@ -19,12 +21,38 @@ void Renderer::renderScene(const std::string& filename)
     auto timeStart = std::chrono::high_resolution_clock::now();
 
     const Settings& settings = _scene.settings();
-    FrameBuffer framebuffer(settings.ImageWidth, settings.ImageHeight);
-    for (int y = 0; y < settings.ImageHeight; ++y) {
-        for (int x = 0; x < settings.ImageWidth; ++x) {
-            framebuffer.push(castRay((float)x, (float)y));
-        }
+    size_t pixelSize = (size_t)settings.ImageWidth * settings.ImageHeight;
+    FrameBuffer framebuffer(pixelSize);
+
+#ifdef MULTI_THREADED
+    std::cout << "Multi-threaded render started" << std::endl;
+    const int threadCount = 10;
+    std::vector<std::thread> renderThreads;
+    renderThreads.reserve(threadCount);
+    for (int threadId = 0; threadId < threadCount; ++threadId) {
+        renderThreads.emplace_back([this, threadId, threadCount, &framebuffer]() {
+            int step = framebuffer.size() / threadCount;
+            int startIndex = step * threadId;
+            int endIndex = (threadId+1 == threadCount) ? framebuffer.size() : (startIndex + step - 1);
+            for (int i = startIndex; i < endIndex; ++i) {
+                Ray ray(_scene.camera().position(), primaryRayDirection(i));
+                framebuffer[i] = castRay(ray);
+            }
+        });
     }
+
+    // Wait for all threads to finish
+    for (auto& thr : renderThreads) {
+        thr.join();
+    }
+
+#else
+    std::cout << "Single-threaded render started" << std::endl;
+     for (int i = 0; i < pixelSize; ++i) {
+         Ray ray(_scene.camera().position(), primaryRayDirection(i));
+         framebuffer[i] = castRay(ray);
+    }
+#endif
 
     auto timeEnd = std::chrono::high_resolution_clock::now();
     auto passedTime = std::chrono::duration<double, std::milli>(timeEnd - timeStart).count();
@@ -88,11 +116,10 @@ bool Renderer::trace(const Ray& ray, Intersaction* intersaction, bool shadowRay)
     return intersaction && intersaction->Triangle != nullptr;
 }
 
-Color Renderer::castRay(float x, float y) const
+Color Renderer::castRay(const Ray& ray) const
 {
     // Trace primary ray
     Intersaction intersaction;
-    const Ray ray(_scene.camera().position(), primaryRayDirection(x, y));
     if (tracePrimary(ray, intersaction)) {
         Color finalColor;
         for (const auto& light : _scene.lights()) {
@@ -117,11 +144,15 @@ Color Renderer::castRay(float x, float y) const
     return _scene.settings().BackGroundColor;
 }
 
-Vector Renderer::primaryRayDirection(float x, float y) const
+Vector Renderer::primaryRayDirection(int pixelIdx) const
 {
-    const Camera& camera = _scene.camera();
     const Settings& settings = _scene.settings();
-    
+
+    // Convert index based pixel to x, y coordinates
+    float x = pixelIdx % settings.ImageWidth;
+    float y = pixelIdx / settings.ImageWidth;
+
+    const Camera& camera = _scene.camera();    
     // Calculate coordinates in 2d space
     Vector rayDirection(x, y, -camera.planeDistance());
     rayDirection = rayDirection.getCenter();

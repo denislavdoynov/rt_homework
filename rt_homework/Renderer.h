@@ -1,8 +1,10 @@
 #pragma once
 #include "Utils.h"
+#include "Ray.h"
+#include <vector>
+#include <thread>
 
 class Scene;
-class Ray;
 
 struct Intersaction
 {
@@ -17,12 +19,12 @@ public:
 	void renderScene(const std::string& filename);
 
 private:
-	Color castRay(float x, float y) const;
+	Color castRay(const Ray& ray) const;
 	bool traceShadow(const Ray& ray) const;
 	bool tracePrimary(const Ray& ray, Intersaction& intersaction) const;
 	
 private:
-	Vector primaryRayDirection(float x, float y) const;
+	Vector primaryRayDirection(int pixelIdx) const;
 	bool trace(const Ray& ray, Intersaction* intersaction, bool shadowRay = false) const;
 
 private:

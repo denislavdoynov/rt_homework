@@ -12,7 +12,7 @@ PPMFile::PPMFile(const string& filename, int imageWidth, int imageHeight, int ma
 
 void PPMFile::writeFrameBuffer(const FrameBuffer& framebuffer)
 {
-	for (const auto& pixel : framebuffer.getBuffer()) {
+	for (const auto& pixel : framebuffer.buffer()) {
 		_ppmFileStream << pixel.toColor(_maxColorComponent).toString();
 	}
 	_ppmFileStream << std::endl;

@@ -37,10 +37,6 @@ Vector& Vector::operator=(const Vector& other)
 
 float& Vector::operator[](int index)
 {
-	if(index >= SIZE ) {
-		return _array[0];
-	}
-
 	return _array[index];
 }
 

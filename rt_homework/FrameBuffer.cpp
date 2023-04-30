@@ -1,8 +1,9 @@
 #include "FrameBuffer.h"
+#include <assert.h>
 
-FrameBuffer::FrameBuffer(int width, int height)
+FrameBuffer::FrameBuffer(size_t size)
 {
-    _buffer.reserve(width * height);
+    _buffer.resize(size);
 }
 
 void FrameBuffer::push(Color&& color) 
@@ -10,6 +11,12 @@ void FrameBuffer::push(Color&& color)
     _buffer.emplace_back(color);
 }
 
+Color& FrameBuffer::operator[](int index) {
+	if (index >= _buffer.size()) {
+		assert(false);
+	}
 
+	return _buffer[index];
+}
 
 

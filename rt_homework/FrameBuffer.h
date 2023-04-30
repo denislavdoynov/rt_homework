@@ -7,9 +7,17 @@
 class FrameBuffer
 {
 public:
-    FrameBuffer(int width, int height);
+    FrameBuffer(size_t size);
     void push(Color&& color);
-    const std::vector<Color>& getBuffer() const { return _buffer; }
+    Color& operator[](int index);    
+
+    size_t size() const {
+        return _buffer.size(); 
+    }
+
+    const std::vector<Color>& buffer() const {
+        return _buffer;
+    }
 
 private:
    std::vector<Color> _buffer;
