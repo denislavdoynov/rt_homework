@@ -8,7 +8,7 @@ FrameBuffer::FrameBuffer(size_t size)
 
 void FrameBuffer::push(Color&& color) 
 {
-    _buffer.emplace_back(color);
+    _buffer.emplace_back(std::forward<Color>(color));
 }
 
 Color& FrameBuffer::operator[](int index) {

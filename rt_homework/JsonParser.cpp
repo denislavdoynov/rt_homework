@@ -55,11 +55,11 @@ void JsonParser::loadVectors(const Value::ConstArray& vecArray, Vertices& vertic
         if ((i + 2) >= vecArray.Size())
             break;
 
-        vertices.emplace_back(Vector(
+        vertices.emplace_back(
             vecArray[i].GetFloat(),
             vecArray[i + 1].GetFloat(),
             vecArray[i + 2].GetFloat()
-        ));
+        );
     }
 }
 

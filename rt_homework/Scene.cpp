@@ -34,27 +34,28 @@ bool Scene::loadScene(const std::string filename)
 }
 void Scene::addMesh(Mesh&& mesh)
 {
-    _goemetryObjects.emplace_back(mesh);
+    _goemetryObjects.emplace_back(std::forward<Mesh>(mesh));
 }
 
 void Scene::addLight(Light&& light)
 {
-    _lights.emplace_back(light);
+    _lights.emplace_back(std::forward<Light>(light));
 }
 
-void Scene::addGeometry(const Triangle& triangle)
+void Scene::addGeometry(Triangle&& triangle)
 {
-    _triangles.emplace_back(triangle);
+    _triangles.emplace_back(std::forward<Triangle>(triangle));
 }
 
 void Scene::compileGeometry()
 {
     for(const auto& mesh : _goemetryObjects ) {
         for (const auto& triangleIndex : mesh.TriangleIndexes) {
-            _triangles.emplace_back(Triangle(
-                mesh.Vertices.at(get<0>(triangleIndex)),
-                mesh.Vertices.at(get<1>(triangleIndex)),
-                mesh.Vertices.at(get<2>(triangleIndex))));
+            _triangles.emplace_back(
+                                mesh.Vertices.at(get<0>(triangleIndex)),
+                                mesh.Vertices.at(get<1>(triangleIndex)),
+                                mesh.Vertices.at(get<2>(triangleIndex))
+            );
         }
     }
 }

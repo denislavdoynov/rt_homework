@@ -59,7 +59,7 @@ public:
 	Scene(int imageWidth, int imageHeight);
 	void addLight(Light&& light);
 	void addMesh(Mesh&& mesh);
-	void addGeometry(const Triangle& triangle);
+	void addGeometry(Triangle&& triangle);
 	void compileGeometry();
 	bool loadScene(const std::string filename);
 

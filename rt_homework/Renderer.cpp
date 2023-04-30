@@ -8,6 +8,7 @@
 
 #include <chrono>
 #include <assert.h>
+#include <iostream>
 
 #define MULTI_THREADED
 
@@ -21,11 +22,11 @@ void Renderer::renderScene(const std::string& filename)
     auto timeStart = std::chrono::high_resolution_clock::now();
 
     const Settings& settings = _scene.settings();
-    size_t pixelSize = (size_t)settings.ImageWidth * settings.ImageHeight;
-    FrameBuffer framebuffer(pixelSize);
+    FrameBuffer framebuffer(settings.ImageWidth * settings.ImageHeight);
 
 #ifdef MULTI_THREADED
     std::cout << "Multi-threaded render started" << std::endl;
+    // Incease thread count on CPUs with more cores
     const int threadCount = 10;
     std::vector<std::thread> renderThreads;
     renderThreads.reserve(threadCount);
@@ -42,8 +43,8 @@ void Renderer::renderScene(const std::string& filename)
     }
 
     // Wait for all threads to finish
-    for (auto& thr : renderThreads) {
-        thr.join();
+    for (auto& th : renderThreads) {
+        th.join();
     }
 
 #else
@@ -56,7 +57,7 @@ void Renderer::renderScene(const std::string& filename)
 
     auto timeEnd = std::chrono::high_resolution_clock::now();
     auto passedTime = std::chrono::duration<double, std::milli>(timeEnd - timeStart).count();
-    std::cout << "Render " << _scene.name() << " done in: " << passedTime << "ms" << std::endl;
+    std::cout << "Render " << _scene.name() << " done in: " << passedTime / 1000 << "sec(s)" << std::endl;
 
     timeStart = std::chrono::high_resolution_clock::now();
 
@@ -66,7 +67,7 @@ void Renderer::renderScene(const std::string& filename)
 	
     timeEnd = std::chrono::high_resolution_clock::now();
     passedTime = std::chrono::duration<double, std::milli>(timeEnd - timeStart).count();
-    std::cout << "Write " << filename << " done in: " << passedTime << "ms" << std::endl;
+    std::cout << "Write " << filename << " done in: " << passedTime / 1000 << "sec(s)" << std::endl;
 }
 
 bool Renderer::traceShadow(const Ray& ray) const 

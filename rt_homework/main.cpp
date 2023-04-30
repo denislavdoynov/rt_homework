@@ -151,10 +151,10 @@ int main() {
 	}	
 	if (scene.loadScene("input\\task8\\scene2.crtscene")) {
 		renderer.renderScene("output\\task8\\task8_2.ppm");
-	}/*
+	}
 	if (scene.loadScene("input\\task8\\scene3.crtscene")) {
 		renderer.renderScene("output\\task8\\task8_3.ppm");
-	}*/
+	}
 #endif
 
 	return 0;
