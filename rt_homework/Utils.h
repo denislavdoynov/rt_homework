@@ -86,21 +86,26 @@ private:
 	float _array[SIZE][SIZE]{ {1.f, 0.f, 0.f}, {0.f, 1.f, 0.f}, {0.f, 0.f, 1.f} };
 };
 
-class Camera;
+struct Material;
 
 struct Triangle {
-	Triangle() = default;
-	Triangle(const Vector& v0, const Vector& v1, const Vector& v2);
+	Triangle() = delete;
+	Triangle(const Vector& v0, const Vector& v1, const Vector& v2, const Material& material);
 	
-	Vector normal() const;
+	const Vector& normal() const;
+	const Vector& smoothNormal(const Point& p);
 	ColorRGB color() const;
-	void setColor(const Vector& color);
-	float distance(const Vector& origin) const;
+	void setColor(const Color& color);
+	float distance(const Point& origin) const;
+	const Material& metrial() const { return _material;	}
 	
-	float area();
+	float area() const;
+	float area2() const;
+	float getU(const Point& p) const;
+	float getV(const Point& p) const;
 	// Recalculate normal and edge vectors
 	void recalc();
-	bool checkIntersaction(const Vector& point) const;
+	bool checkIntersaction(const Point& point) const;
 
 	Vector V0;
 	Vector V1;
@@ -108,8 +113,11 @@ struct Triangle {
 
 private:
 	Vector _normal;
-	Vector _vE0;
-	Vector _vE1;
-	Vector _vE2;
-	Vector _color{ 1.f, 1.f, 1.f };
+	Vector _smoothNormal;
+	Vector _V0V1;
+	Vector _V1V2;
+	Vector _V2V0;
+	Vector _V0V2;
+	Color _color{ 1.f, 1.f, 1.f };
+	const Material& _material;
 };

@@ -11,6 +11,7 @@
 #include <iostream>
 
 #define MULTI_THREADED
+#define BARYCENTRIC_COLORS
 
 Renderer::Renderer(Scene& scene) :
     _scene(scene)
@@ -57,7 +58,7 @@ void Renderer::renderScene(const std::string& filename)
 
     auto timeEnd = std::chrono::high_resolution_clock::now();
     auto passedTime = std::chrono::duration<double, std::milli>(timeEnd - timeStart).count();
-    std::cout << "Render " << _scene.name() << " done in: " << passedTime / 1000 << "sec(s)" << std::endl;
+    std::cout << "Render " << _scene.name() << " done in: " << (int)(passedTime / 1000) << " sec(s)" << std::endl;
 
     timeStart = std::chrono::high_resolution_clock::now();
 
@@ -67,7 +68,7 @@ void Renderer::renderScene(const std::string& filename)
 	
     timeEnd = std::chrono::high_resolution_clock::now();
     passedTime = std::chrono::duration<double, std::milli>(timeEnd - timeStart).count();
-    std::cout << "Write " << filename << " done in: " << passedTime / 1000 << "sec(s)" << std::endl;
+    std::cout << "Write " << filename << " done in: " << (int)(passedTime / 1000) << " sec(s)" << std::endl;
 }
 
 bool Renderer::traceShadow(const Ray& ray) const 
@@ -130,16 +131,26 @@ Color Renderer::castRay(const Ray& ray) const
      
             // Trace shadow ray
             Ray shadowRay(intersaction.Point + intersaction.Triangle->normal() * _shadowBias, lightDir);
-            if(!traceShadow(shadowRay)) {                
-                float cosLaw = std::max(0.f, lightDir.dot(intersaction.Triangle->normal()));
+            if(!traceShadow(shadowRay)) {             
+                const Vector& normal = intersaction.Triangle->metrial().SmoothShading ? 
+                    intersaction.Triangle->smoothNormal(intersaction.Point) : intersaction.Triangle->normal();
+
+                float cosLaw = std::max(0.f, lightDir.dot(normal));
                 float colorCorrection = light.Intensity / area * cosLaw;
-                Vector lightContribution(_alberdo);
+                Vector lightContribution(intersaction.Triangle->metrial().Albedo);
                 lightContribution *= colorCorrection;
                 finalColor += lightContribution;
             }
         }
 
-       return finalColor;
+#ifdef BARYCENTRIC_COLORS
+        float u = intersaction.Triangle->getU(intersaction.Point);
+        float v = intersaction.Triangle->getV(intersaction.Point);
+        finalColor.setY(u);
+        finalColor.setZ(v);
+#endif
+
+        return finalColor;
     }
 
     return _scene.settings().BackGroundColor;

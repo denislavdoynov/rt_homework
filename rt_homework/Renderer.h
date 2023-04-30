@@ -30,6 +30,5 @@ private:
 private:
 	Scene& _scene;
 	float _shadowBias = 0.00001f;
-	Vector _alberdo{1.0f, 0.5f, 0.5f};
 };
 

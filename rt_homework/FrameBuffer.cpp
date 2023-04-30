@@ -18,5 +18,3 @@ Color& FrameBuffer::operator[](int index) {
 
 	return _buffer[index];
 }
-
-

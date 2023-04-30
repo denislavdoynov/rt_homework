@@ -6,7 +6,7 @@
 #include <iostream>
 #include <sstream>
 
-#define TASK_8
+#define TASK_9
 
 int main() {
 	srand((unsigned int)time(NULL));
@@ -155,6 +155,26 @@ int main() {
 	if (scene.loadScene("input\\task8\\scene3.crtscene")) {
 		renderer.renderScene("output\\task8\\task8_3.ppm");
 	}
+#endif
+
+
+#ifdef TASK_9
+	Scene scene;
+	Renderer renderer(scene);
+	/*if (scene.loadScene("input\\task9\\scene0.crtscene")) {
+		renderer.renderScene("output\\task9\\task9_0.ppm");
+	}
+	*/
+	if (scene.loadScene("input\\task9\\scene1.crtscene")) {
+		renderer.renderScene("output\\task9\\task9_1.ppm");
+	}
+
+	/*if (scene.loadScene("input\\task9\\scene2.crtscene")) {
+		renderer.renderScene("output\\task9\\task9_2.ppm");
+	}
+	if (scene.loadScene("input\\task9\\scene3.crtscene")) {
+		renderer.renderScene("output\\task9\\task9_3.ppm");
+	}*/
 #endif
 
 	return 0;

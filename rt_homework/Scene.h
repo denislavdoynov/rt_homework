@@ -20,14 +20,36 @@ struct Settings
 	int ImageHeight = 0;
 };
 
+struct Material
+{
+	enum class Type
+	{
+		Diffuse,
+		Reflective
+	};
+
+	static constexpr const char* JSON_MATERIALS = "materials";
+	static constexpr const char* JSON_MATERIALS_TYPE = "type";
+	static constexpr const char* JSON_MATERIALS_ALBEDO= "albedo";
+	static constexpr const char* JSON_MATERIALS_SMOOTH = "smooth_shading";
+
+	Type Type = Type::Diffuse;
+	bool SmoothShading = false;
+	Vector Albedo{ 1.f, 1.f, 1.f };
+};
+
+
 struct Mesh
 {
 	static constexpr const char* JSON_OBJECTS = "objects";
 	static constexpr const char* JSON_OBJECTS_VERTICES = "vertices";
 	static constexpr const char* JSON_OBJECTS_TRIANGLES = "triangles";
+	static constexpr const char* JSON_OBJECTS_MATERIAL = "material_index";
+	
 
 	Vertices Vertices;
 	TriangleIndexes TriangleIndexes;
+	int MaterialIndex = 0;
 };
 
 struct Light
@@ -48,17 +70,27 @@ struct Light
 	}
 };
 
+struct Object
+{
+	std::vector<int> _triangles;
+
+};
+
 class Scene
 {
 public:
 	using Triangles = std::vector<Triangle>;
+	using Objects = std::vector<Object>;
+
 	using Lights = std::vector<Light>;
+	using Materials = std::vector<Material>;
 	using GeometryObjects = std::vector<Mesh>;
 
 	Scene() = default;
 	Scene(int imageWidth, int imageHeight);
 	void addLight(Light&& light);
 	void addMesh(Mesh&& mesh);
+	void addMaterial(Material&& mat);
 	void addGeometry(Triangle&& triangle);
 	void compileGeometry();
 	bool loadScene(const std::string filename);
@@ -78,5 +110,6 @@ private:
 	Settings _settings;
 	GeometryObjects _goemetryObjects;
 	Lights _lights;
+	Materials _materials;
 	std::string _sceneFile;
 };

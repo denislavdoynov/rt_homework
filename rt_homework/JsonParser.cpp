@@ -128,6 +128,7 @@ bool JsonParser::load(Scene& scene)
                 loadTriangles(triangles.GetArray(), mesh.TriangleIndexes);
             }
 
+            mesh.MaterialIndex = object.FindMember(Mesh::JSON_OBJECTS_MATERIAL)->value.GetInt();
             scene.addMesh(std::move(mesh));            
         }
     }
@@ -145,7 +146,26 @@ bool JsonParser::load(Scene& scene)
         }
     }
 
+    const auto& materials = doc.FindMember(Material::JSON_MATERIALS)->value;
+    if (!materials.IsNull() && materials.IsArray()) {
+        for (const auto& material : materials.GetArray()) {
+            const auto& albedo = material.FindMember(Material::JSON_MATERIALS_ALBEDO)->value;
+            if (albedo.IsArray()) {
+                Material sceneMaterial;
+                sceneMaterial.Albedo = loadVector(albedo.GetArray());
+                sceneMaterial.SmoothShading = material.FindMember(Material::JSON_MATERIALS_SMOOTH)->value.GetBool();
 
+                const char* type = material.FindMember(Material::JSON_MATERIALS_TYPE)->value.GetString();
+                if (strcmp(type, "diffuse") == 0) {
+                    sceneMaterial.Type = Material::Type::Diffuse;
+                } else if (strcmp(type, "reflective") == 0) {
+                    sceneMaterial.Type = Material::Type::Reflective;
+                }
+           
+                scene.addMaterial(std::move(sceneMaterial));
+            }
+        }
+    }
 
     return true;
 }

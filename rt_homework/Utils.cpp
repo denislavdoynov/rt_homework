@@ -157,13 +157,13 @@ ColorRGB Vector::toColor(int maxColorComponent) const
 // Triangle class
 
 
-Triangle::Triangle(const Vector& v0, const Vector& v1, const Vector& v2) :
-	V0(v0), V1(v1), V2(v2)
+Triangle::Triangle(const Vector& v0, const Vector& v1, const Vector& v2, const Material& material) :
+	V0(v0), V1(v1), V2(v2), _material(material)
 {
 	recalc();
 }
 
-float Triangle::distance(const Vector& origin) const
+float Triangle::distance(const Point& origin) const
 {
 	// Could be precalculated in later stage
 	return _normal.dot(V0 - origin);
@@ -171,20 +171,46 @@ float Triangle::distance(const Vector& origin) const
 
 void Triangle::recalc()
 {
-	_vE0 = V1 - V0;
-	_vE1 = V2 - V1;
-	_vE2 = V0 - V2;
+	_V0V1 = V1 - V0;
+	_V1V2 = V2 - V1;
+	_V2V0 = V0 - V2;
+	_V0V2 = V2 - V0;
 
-	Vector E1 = V2 - V0;
-	_normal = _vE0.cross(E1).normal();
+	_normal = _V0V1.cross(_V0V2).normal();
 }
 
-Vector Triangle::normal() const
+const Vector& Triangle::normal() const
 {	
 	return _normal;
 }
 
-void Triangle::setColor(const Vector& color)
+const Vector& Triangle::smoothNormal(const Point& p) {
+	float u = getU(p);
+	float v = getV(p);
+
+	// Calculate smoothNormal
+	Vector V1N;
+	Vector V2N;
+	Vector V0N;
+	_smoothNormal = V1N * u + V2N * v + V0N * (1 - u - v);
+	return _smoothNormal;
+
+}
+
+float Triangle::getU(const Point& p) const
+{
+	Vector V0P = p - V0;
+	return V0P.cross(_V0V2).magnitude() / _V0V1.cross(_V0V2).magnitude();
+
+}
+
+float Triangle::getV(const Point& p) const
+{
+	Vector V0P = p - V0;
+	return _V0V1.cross(V0P).magnitude() / _V0V1.cross(_V0V2).magnitude();
+}
+
+void Triangle::setColor(const Color& color)
 {
 	_color = color;
 }
@@ -194,26 +220,33 @@ ColorRGB Triangle::color() const
 	return _color.toColor(255);
 }
 
-float Triangle::area() {
+float Triangle::area() const 
+{
 	Vector v = normal();
 	return v.magnitude() / 2;
 }
 
-bool Triangle::checkIntersaction(const Vector& point) const
+float Triangle::area2() const 
+{
+	Vector v = normal();
+	return v.magnitude();
+}
+
+bool Triangle::checkIntersaction(const Point& point) const
 {
 	Vector v0P = point - V0;
 	// Check if P is on the left of E0
-	if(_normal.dot(_vE0.cross(v0P)) < 0)
+	if(_normal.dot(_V0V1.cross(v0P)) < 0)
 		return false;
 
 	Vector v1P = point - V1;
 	// Check if P is on the left of E1
-	if(_normal.dot(_vE1.cross(v1P)) < 0)
+	if(_normal.dot(_V1V2.cross(v1P)) < 0)
 		return false;
 	
 	Vector v2P = point - V2;	
 	// Check if P is on the left of E2
-	if(_normal.dot(_vE2.cross(v2P)) < 0)
+	if(_normal.dot(_V2V0.cross(v2P)) < 0)
 		return false;
 
 	// Got intersaction

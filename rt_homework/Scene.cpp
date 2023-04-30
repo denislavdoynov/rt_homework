@@ -42,6 +42,10 @@ void Scene::addLight(Light&& light)
     _lights.emplace_back(std::forward<Light>(light));
 }
 
+void Scene::addMaterial(Material&& mat) {
+    _materials.emplace_back(std::forward<Material>(mat));
+}
+
 void Scene::addGeometry(Triangle&& triangle)
 {
     _triangles.emplace_back(std::forward<Triangle>(triangle));
@@ -54,7 +58,8 @@ void Scene::compileGeometry()
             _triangles.emplace_back(
                                 mesh.Vertices.at(get<0>(triangleIndex)),
                                 mesh.Vertices.at(get<1>(triangleIndex)),
-                                mesh.Vertices.at(get<2>(triangleIndex))
+                                mesh.Vertices.at(get<2>(triangleIndex)),
+                                _materials[mesh.MaterialIndex]
             );
         }
     }
