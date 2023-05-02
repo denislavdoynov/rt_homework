@@ -2,10 +2,11 @@
 
 #include "Shape.h"
 #include "Camera.h"
+#include <memory>
 #include <vector>
 
 using TriangleIndexes = std::vector<std::tuple<int, int, int>>;
-using Vertices = std::vector<Vector>;
+using Vertices = std::vector<std::unique_ptr<Vertex>>;
 
 struct Settings
 {
@@ -18,6 +19,7 @@ struct Settings
 	Color BackGroundColor;
 	int ImageWidth = 0;
 	int ImageHeight = 0;
+	int ReflectiveDepth = 2;
 };
 
 struct Material

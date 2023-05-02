@@ -19,7 +19,7 @@ public:
 	void renderScene(const std::string& filename);
 
 private:
-	Color castRay(const Ray& ray) const;
+	Color castRay(const Ray& ray, int& depth) const;
 	bool traceShadow(const Ray& ray) const;
 	bool tracePrimary(const Ray& ray, Intersaction& intersaction) const;
 	

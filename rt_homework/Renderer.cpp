@@ -11,7 +11,7 @@
 #include <iostream>
 
 #define MULTI_THREADED
-#define BARYCENTRIC_COLORS
+//#define BARYCENTRIC_COLORS
 
 Renderer::Renderer(Scene& scene) :
     _scene(scene)
@@ -37,8 +37,9 @@ void Renderer::renderScene(const std::string& filename)
             int startIndex = step * threadId;
             int endIndex = (threadId+1 == threadCount) ? framebuffer.size() : (startIndex + step - 1);
             for (int i = startIndex; i < endIndex; ++i) {
+                int depth = 0;
                 Ray ray(_scene.camera().position(), primaryRayDirection(i));
-                framebuffer[i] = castRay(ray);
+                framebuffer[i] = castRay(ray, depth);
             }
         });
     }
@@ -51,8 +52,9 @@ void Renderer::renderScene(const std::string& filename)
 #else
     std::cout << "Single-threaded render started" << std::endl;
      for (int i = 0; i < pixelSize; ++i) {
+         int depth = 0;
          Ray ray(_scene.camera().position(), primaryRayDirection(i));
-         framebuffer[i] = castRay(ray);
+         framebuffer[i] = castRay(ray, depth);
     }
 #endif
 
@@ -118,39 +120,53 @@ bool Renderer::trace(const Ray& ray, Intersaction* intersaction, bool shadowRay)
     return intersaction && intersaction->Triangle != nullptr;
 }
 
-Color Renderer::castRay(const Ray& ray) const
+Color Renderer::castRay(const Ray& ray, int& depth) const
 {
+    ++depth;
+
     // Trace primary ray
     Intersaction intersaction;
     if (tracePrimary(ray, intersaction)) {
-        Color finalColor;
-        for (const auto& light : _scene.lights()) {
-            // Shadow ray direction
-            Color lightDir;
-            float area = light.getIllumination(intersaction.Point, lightDir);
+        if (intersaction.Triangle->metrial().Type == Material::Type::Diffuse) {
+            Color finalColor;
+            for (const auto& light : _scene.lights()) {
+                // Shadow ray direction
+                Vector lightDir;
+                float area = light.getIllumination(intersaction.Point, lightDir);
      
-            // Trace shadow ray
-            Ray shadowRay(intersaction.Point + intersaction.Triangle->normal() * _shadowBias, lightDir);
-            if(!traceShadow(shadowRay)) {             
-                const Vector& normal = intersaction.Triangle->metrial().SmoothShading ? 
-                    intersaction.Triangle->smoothNormal(intersaction.Point) : intersaction.Triangle->normal();
+                // Trace shadow ray
+                Ray shadowRay(intersaction.Point + intersaction.Triangle->normal() * _shadowBias, lightDir);
+                if(!traceShadow(shadowRay)) {             
+                    const Vector normalTri = intersaction.Triangle->metrial().SmoothShading ? 
+                        intersaction.Triangle->smoothNormal(intersaction.Point) : intersaction.Triangle->normal();
 
-                float cosLaw = std::max(0.f, lightDir.dot(normal));
-                float colorCorrection = light.Intensity / area * cosLaw;
-                Vector lightContribution(intersaction.Triangle->metrial().Albedo);
-                lightContribution *= colorCorrection;
-                finalColor += lightContribution;
+                    float cosLaw = std::max(0.f, lightDir.dot(normalTri));
+                    float colorCorrection = light.Intensity / area * cosLaw;
+                    Vector lightContribution(intersaction.Triangle->metrial().Albedo);
+                    lightContribution *= colorCorrection;
+                    finalColor += lightContribution;
+                }
             }
+
+    #ifdef BARYCENTRIC_COLORS
+            UV uvCoord = intersaction.Triangle->uv(intersaction.Point);
+            finalColor.setY(uvCoord.u);
+            finalColor.setZ(uvCoord.v);
+    #endif
+
+            return finalColor;
+        } else if (intersaction.Triangle->metrial().Type == Material::Type::Reflective) {
+                       
+            if(depth >= _scene.settings().ReflectiveDepth) {
+                return _scene.settings().BackGroundColor;
+            }
+
+            float dotProd = ray.direction().dot(intersaction.Triangle->normal());
+            Vector reflectionDir(ray.direction() - (intersaction.Triangle->normal() * 2.f * dotProd));
+            Point origin(intersaction.Point + intersaction.Triangle->normal() * _shadowBias);
+            Ray reflectionRay(origin, reflectionDir.normal());
+            return castRay(reflectionRay, depth);
         }
-
-#ifdef BARYCENTRIC_COLORS
-        float u = intersaction.Triangle->getU(intersaction.Point);
-        float v = intersaction.Triangle->getV(intersaction.Point);
-        finalColor.setY(u);
-        finalColor.setZ(v);
-#endif
-
-        return finalColor;
     }
 
     return _scene.settings().BackGroundColor;

@@ -55,10 +55,10 @@ void JsonParser::loadVectors(const Value::ConstArray& vecArray, Vertices& vertic
         if ((i + 2) >= vecArray.Size())
             break;
 
-        vertices.emplace_back(
+        vertices.emplace_back(std::make_unique<Vertex>(Vector(
             vecArray[i].GetFloat(),
             vecArray[i + 1].GetFloat(),
-            vecArray[i + 2].GetFloat()
+            vecArray[i + 2].GetFloat()))            
         );
     }
 }

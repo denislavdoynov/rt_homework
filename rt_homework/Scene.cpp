@@ -16,6 +16,7 @@ void Scene::cleanup()
     _triangles.clear();
     _lights.clear();
     _sceneFile.clear();
+    _materials.clear();
 }
 
 bool Scene::loadScene(const std::string filename)
@@ -53,14 +54,23 @@ void Scene::addGeometry(Triangle&& triangle)
 
 void Scene::compileGeometry()
 {
+    bool computeSmoorthNormals = false;
     for(const auto& mesh : _goemetryObjects ) {
-        for (const auto& triangleIndex : mesh.TriangleIndexes) {
+        // Compute the smoorth normals
+        computeSmoorthNormals = computeSmoorthNormals || _materials[mesh.MaterialIndex].SmoothShading;
+        for (auto& triangleIndex : mesh.TriangleIndexes) {
             _triangles.emplace_back(
-                                mesh.Vertices.at(get<0>(triangleIndex)),
-                                mesh.Vertices.at(get<1>(triangleIndex)),
-                                mesh.Vertices.at(get<2>(triangleIndex)),
+                                *(mesh.Vertices.at(get<0>(triangleIndex)).get()),
+                                *(mesh.Vertices.at(get<1>(triangleIndex)).get()),
+                                *(mesh.Vertices.at(get<2>(triangleIndex)).get()),
                                 _materials[mesh.MaterialIndex]
-            );
+            );        
+        } 
+    }
+
+    if (computeSmoorthNormals) {
+        for (auto& triangle : _triangles) {
+            triangle.normalizeVertices();
         }
     }
 }

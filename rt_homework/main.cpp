@@ -164,16 +164,22 @@ int main() {
 	/*if (scene.loadScene("input\\task9\\scene0.crtscene")) {
 		renderer.renderScene("output\\task9\\task9_0.ppm");
 	}
-	*/
+	
 	if (scene.loadScene("input\\task9\\scene1.crtscene")) {
 		renderer.renderScene("output\\task9\\task9_1.ppm");
-	}
-
-	/*if (scene.loadScene("input\\task9\\scene2.crtscene")) {
+	}	
+	if (scene.loadScene("input\\task9\\scene2.crtscene")) {
 		renderer.renderScene("output\\task9\\task9_2.ppm");
 	}
 	if (scene.loadScene("input\\task9\\scene3.crtscene")) {
 		renderer.renderScene("output\\task9\\task9_3.ppm");
+	}*/
+
+	if (scene.loadScene("input\\task9\\scene4.crtscene")) {
+		renderer.renderScene("output\\task9\\task9_4.ppm");
+	}
+	/*if (scene.loadScene("input\\task9\\scene5.crtscene")) {
+		renderer.renderScene("output\\task9\\task9_5.ppm");
 	}*/
 #endif
 

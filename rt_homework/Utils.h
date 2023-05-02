@@ -86,34 +86,48 @@ private:
 	float _array[SIZE][SIZE]{ {1.f, 0.f, 0.f}, {0.f, 1.f, 0.f}, {0.f, 0.f, 1.f} };
 };
 
+struct UV
+{
+	float u;
+	float v;
+
+};
+
 struct Material;
+
+struct Vertex
+{
+	Vertex(const Vector& v) : Vert(v) {}
+	Vector Vert;
+	Vector Normal;
+
+};
 
 struct Triangle {
 	Triangle() = delete;
-	Triangle(const Vector& v0, const Vector& v1, const Vector& v2, const Material& material);
+	Triangle(Vertex& v0, Vertex& v1, Vertex& v2, const Material& material);
 	
 	const Vector& normal() const;
-	const Vector& smoothNormal(const Point& p);
+	void normalizeVertices();
+	const Vector smoothNormal(const Point& p) const;
 	ColorRGB color() const;
 	void setColor(const Color& color);
 	float distance(const Point& origin) const;
 	const Material& metrial() const { return _material;	}
 	
 	float area() const;
-	float area2() const;
-	float getU(const Point& p) const;
-	float getV(const Point& p) const;
+	UV uv(const Point& p) const;
 	// Recalculate normal and edge vectors
 	void recalc();
 	bool checkIntersaction(const Point& point) const;
 
-	Vector V0;
-	Vector V1;
-	Vector V2;
+	Vertex& V0;
+	Vertex& V1;
+	Vertex& V2;
 
 private:
 	Vector _normal;
-	Vector _smoothNormal;
+	float _rectArea;
 	Vector _V0V1;
 	Vector _V1V2;
 	Vector _V2V0;
