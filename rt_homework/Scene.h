@@ -19,7 +19,7 @@ struct Settings
 	Color BackGroundColor;
 	int ImageWidth = 0;
 	int ImageHeight = 0;
-	int ReflectiveDepth = 2;
+	int ReflectiveDepth = 6;
 };
 
 struct Material

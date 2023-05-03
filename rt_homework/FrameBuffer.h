@@ -6,19 +6,22 @@
 class FrameBuffer
 {
 public:
+    FrameBuffer() = default;
     FrameBuffer(size_t size);
+    ~FrameBuffer();
+
+    FrameBuffer& operator=(const FrameBuffer& rhs);
     void push(Color&& color);
     Color& operator[](int index);    
 
-    size_t size() const {
-        return _buffer.size(); 
-    }
+    size_t size() const { return _buffer.size(); }
+    const std::vector<Color>& buffer() const { return _buffer; }
+    unsigned char* imageData();
 
-    const std::vector<Color>& buffer() const {
-        return _buffer;
-    }
 
 private:
-   std::vector<Color> _buffer;
+    std::vector<Color> _buffer;
+    unsigned char* _imageData = nullptr;
+    size_t _size = 0;
 };
 

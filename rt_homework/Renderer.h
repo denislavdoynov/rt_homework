@@ -3,8 +3,10 @@
 #include "Ray.h"
 #include <vector>
 #include <thread>
+#include <sstream>
 
 class Scene;
+class FrameBuffer;
 
 struct Intersaction
 {
@@ -16,7 +18,7 @@ class Renderer
 {
 public:
 	Renderer(Scene& scene);
-	void renderScene(const std::string& filename);
+	int renderScene(const std::string& filename, FrameBuffer* buffer = nullptr, std::stringstream* log = nullptr);
 
 private:
 	Color castRay(const Ray& ray, int& depth) const;
@@ -29,6 +31,6 @@ private:
 
 private:
 	Scene& _scene;
-	float _shadowBias = 0.00001f;
+	float _shadowBias = 0.00011f;
 };
 

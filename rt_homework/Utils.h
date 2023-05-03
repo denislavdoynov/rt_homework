@@ -18,13 +18,13 @@ public:
 
 struct ColorRGB {
 	ColorRGB() = default;
-	ColorRGB(unsigned short r, unsigned short g, unsigned short b);
+	ColorRGB(unsigned char r, unsigned char g, unsigned char b);
 	static ColorRGB random(int maxColorComponent);
 	std::string toString();
 
-	unsigned short R = 0;
-	unsigned short G = 0;
-	unsigned short B = 0;
+	unsigned char R = 0;
+	unsigned char G = 0;
+	unsigned char B = 0;
 };
 
 struct Vector {
@@ -108,8 +108,8 @@ struct Triangle {
 	Triangle(Vertex& v0, Vertex& v1, Vertex& v2, const Material& material);
 	
 	const Vector& normal() const;
+	const Vector hitNormal(const Point& p) const;
 	void normalizeVertices();
-	const Vector smoothNormal(const Point& p) const;
 	ColorRGB color() const;
 	void setColor(const Color& color);
 	float distance(const Point& origin) const;
@@ -124,6 +124,9 @@ struct Triangle {
 	Vertex& V0;
 	Vertex& V1;
 	Vertex& V2;
+
+private:
+	const Vector smoothNormal(const Point& p) const;
 
 private:
 	Vector _normal;

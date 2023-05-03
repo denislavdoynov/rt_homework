@@ -1,187 +1,163 @@
-#include "Shape.h"
-#include "Scene.h"
-#include "Common.h"
-#include "Renderer.h"
+#include "Application.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+#include <stdio.h>
+#define GL_SILENCE_DEPRECATION
+#if defined(IMGUI_IMPL_OPENGL_ES2)
+#include <GLES2/gl2.h>
+#endif
+#include <GLFW/glfw3.h> // Will drag system OpenGL headers
 
-#include <iostream>
-#include <sstream>
+#include <windows.h>
+
+// [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
+// To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
+// Your own project should not be affected, as you are likely to link with a newer binary of GLFW that is adequate for your version of Visual Studio.
+#if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
+#pragma comment(lib, "legacy_stdio_definitions")
+#endif
+
+// This example can also compile and run with Emscripten! See 'Makefile.emscripten' for details.
+#ifdef __EMSCRIPTEN__
+#include "../libs/emscripten/emscripten_mainloop_stub.h"
+#endif
 
 #define TASK_9
 
-int main() {
-	srand((unsigned int)time(NULL));
-
-#ifdef TASK_1		
-	Rectangles rect(7, 5);
-	rect.draw("output\\task1.ppm");
-
-	Rectangles rect2(3, 0);
-	rect2.setColors({
-		std::make_pair(0, Color(255, 255, 255)),
-		std::make_pair(1 << 16, Color(0, 233, 0)),
-		std::make_pair(2 << 16, Color(233, 0, 0)),
-		});
-	rect2.draw("output\\task1_2.ppm");
-#endif
-
-#ifdef TASK_2
-	Circle circle(220.f);
-	circle.setPostion(IMAGE_WIDTH * 0.5f, IMAGE_HEIGHT * 0.5f);
-	circle.draw("output\\task2.ppm");
-#endif
-
-#ifdef TASK_3
-	Scene scene;
-	scene.draw("output\\task3.ppm");
-#endif
-
-#ifdef TASK_4
-	Vector p2_a(3.5f, 0.f, 0.f);
-	std::cout << "cross: " << p2_a.cross({1.75f, 3.5f, 0.f}) << std::endl;
-
-	Vector p2_b(3.f, -3.f, 1.f);
-	std::cout << "cross: " << p2_b.cross({4.f, 9.f, 3.f}) << std::endl;
-
-	Vector p2_c(3.5f, 0.f, 0.f);
-	std::cout << "cross: " << p2_c.cross({ 1.75f, 3.5f, 0.f }) << std::endl;
-
-	Triangle p3_a({ -1.75, -1.75, -3 }, { 1.75, -1.75, -3 }, { 0, 1.75, -3 } );
-	std::cout << "normal: " << p3_a.normal().normalize() << std::endl;
-	std::cout << "area: " << p3_a.area() << std::endl;
-
-	Triangle p3_b({ 0, 0, -1 }, { 1, 0, 1 }, { -1, 0, 1 });
-	std::cout << "normal: " << p3_b.normal().normalize() << std::endl;
-	std::cout << "area: " << p3_b.area() << std::endl;
-
-	Triangle p3_c({ 0.56f, 1.11f, 1.23f }, { 0.44f, -2.368f, -0.54f }, { -1.56f, 0.15f, -1.92f });
-	std::cout << "normal: " << p3_c.normal().normalize() << std::endl;
-	std::cout << "area: " << p3_c.area() << std::endl;
-#endif
-
-#ifdef TASK_5
-	{
-		// Create triangle and add to the scene
-		Triangle t1({ -1.75, -1.75, -3 }, { 3.75, -1.75, -3 }, { 0, 1.75, -3 });
-		t1.setColor({ 3, 252, 11 });	
-		Triangle t2({ 0.70, -1.75, -2 }, { 4.75, 1.75, -3 }, { 0, 1.75, -3 });
-		t2.setColor({ 252, 3, 140 });
-		
-		Scene scene;
-		scene.addGeometry(t1);
-		scene.addGeometry(t2);
-		scene.draw("output\\task5.ppm");
-	}
-	{
-		Scene scene;
-		scene.addGeometry({{ -1.75, -1.75, -3 }, { 1.75, -1.75, -30 }, { 0, 1.75, -20 }});
-		scene.draw("output\\task5_a.ppm");
-	}
-
-#endif
-
-#ifdef TASK_6
-	{
-		// Create triangle and add to the scene
-		Scene scene(IMAGE_WIDTH, IMAGE_HEIGHT);
-		Renderer renderer(scene);
-		Triangle t1({ -1.75, -1.75, -3 }, { 3.75, -1.75, -3 }, { 0, 1.75, -3 });
-		t1.setColor({ 3, 252, 11 });
-		Triangle t2({ 0.70, -1.75, -2 }, { 4.75, 1.75, -3 }, { 0, 1.75, -3 });
-		t2.setColor({ 252, 3, 140 });
-
-		scene.addGeometry(t1);
-		scene.addGeometry(t2);
-
-		scene.camera().pan(30);
-		renderer.renderScene("output\\task6_1.ppm");
-		
-		scene.camera().pan(-30);
-		renderer.renderScene("output\\task6_2.ppm");
-
-		scene.camera().truck({-2, 0, 0});
-		renderer.renderScene("output\\task6_2_1.ppm");
-			
-		float panRotation = 0.f;
-		float step = 2.f;
-		for(int i = 0; i < 50; i++) {
-			panRotation += step;			
-			if(abs(panRotation) > 20.f )
-				step *= -1;
-
-			std::stringstream output;
-			output << "output\\task6_3_" << i << ".ppm";
-			scene.camera().pan(panRotation);
-			renderer.renderScene(output.str());
-		}
-	}
-
-#endif
-
-#ifdef TASK_7
-	Scene scene;
-	Renderer renderer(scene);
-	if(scene.loadScene("input\\task7\\scene0.crtscene")) {
-		renderer.renderScene("output\\task7_0.ppm");
-	}
-	if (scene.loadScene("input\\task7\\scene1.crtscene")) {
-		renderer.renderScene("output\\task7_1.ppm");
-	}
-
-	if (scene.loadScene("input\\task7\\scene2.crtscene")) {
-		renderer.renderScene("output\\task7_2.ppm");
-	}
-
-	if (scene.loadScene("input\\task7\\scene3.crtscene")) {
-		renderer.renderScene("output\\task7_3.ppm");
-	}
-
-	if (scene.loadScene("input\\task7\\scene4.crtscene")) {
-		renderer.renderScene("output\\task7_4.ppm");
-	}
-#endif
-
-#ifdef TASK_8
-	Scene scene;
-	Renderer renderer(scene);
-	if (scene.loadScene("input\\task8\\scene0.crtscene")) {
-		renderer.renderScene("output\\task8\\task8_0.ppm");		
-	}
-	if (scene.loadScene("input\\task8\\scene1.crtscene")) {
-		renderer.renderScene("output\\task8\\task8_1.ppm");
-	}	
-	if (scene.loadScene("input\\task8\\scene2.crtscene")) {
-		renderer.renderScene("output\\task8\\task8_2.ppm");
-	}
-	if (scene.loadScene("input\\task8\\scene3.crtscene")) {
-		renderer.renderScene("output\\task8\\task8_3.ppm");
-	}
-#endif
-
-
-#ifdef TASK_9
-	Scene scene;
-	Renderer renderer(scene);
-	/*if (scene.loadScene("input\\task9\\scene0.crtscene")) {
-		renderer.renderScene("output\\task9\\task9_0.ppm");
-	}
-	
-	if (scene.loadScene("input\\task9\\scene1.crtscene")) {
-		renderer.renderScene("output\\task9\\task9_1.ppm");
-	}	
-	if (scene.loadScene("input\\task9\\scene2.crtscene")) {
-		renderer.renderScene("output\\task9\\task9_2.ppm");
-	}
-	if (scene.loadScene("input\\task9\\scene3.crtscene")) {
-		renderer.renderScene("output\\task9\\task9_3.ppm");
-	}*/
-
-	if (scene.loadScene("input\\task9\\scene4.crtscene")) {
-		renderer.renderScene("output\\task9\\task9_4.ppm");
-	}
-	/*if (scene.loadScene("input\\task9\\scene5.crtscene")) {
-		renderer.renderScene("output\\task9\\task9_5.ppm");
-	}*/
-#endif
-
-	return 0;
+static void glfw_error_callback(int error, const char* description)
+{
+    fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
+
+// Main code
+int WINAPI WinMain(
+    HINSTANCE hInstance,
+    HINSTANCE hPrevInstance,
+    LPSTR     lpCmdLine,
+    int       nCmdShow
+)
+{
+    glfwSetErrorCallback(glfw_error_callback);
+    if (!glfwInit())
+        return 1;
+
+    // Decide GL+GLSL versions
+#if defined(IMGUI_IMPL_OPENGL_ES2)
+    // GL ES 2.0 + GLSL 100
+    const char* glsl_version = "#version 100";
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+#elif defined(__APPLE__)
+    // GL 3.2 + GLSL 150
+    const char* glsl_version = "#version 150";
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
+#else
+    // GL 3.0 + GLSL 130
+    const char* glsl_version = "#version 130";
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
+#endif
+
+    // Create window with graphics context
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "Chaos RayTracer", nullptr, nullptr);
+    if (window == nullptr)
+        return 1;
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(1); // Enable vsync
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsLight();
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init(glsl_version);
+
+    // Load Fonts
+    // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
+    // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
+    // - If the file cannot be loaded, the function will return a nullptr. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
+    // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
+    // - Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file to use Freetype for higher quality font rendering.
+    // - Read 'docs/FONTS.md' for more instructions and details.
+    // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
+    // - Our Emscripten build process allows embedding fonts to be accessible at runtime from the "fonts/" folder. See Makefile.emscripten for details.
+    //io.Fonts->AddFontDefault();
+    //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f);
+    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
+    ImFont* font = io.Fonts->AddFontFromFileTTF("Roboto-Medium.ttf", 16.0f);
+    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
+    //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
+    //IM_ASSERT(font != nullptr);
+
+    // Our state
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    Application myApp;
+    myApp.renderTasks();
+
+    // Main loop
+#ifdef __EMSCRIPTEN__
+    // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
+    // You may manually call LoadIniSettingsFromMemory() to load settings from your own storage.
+    io.IniFilename = nullptr;
+    EMSCRIPTEN_MAINLOOP_BEGIN
+#else
+    while (!glfwWindowShouldClose(window))
+#endif
+    {
+        // Poll and handle events (inputs, window resize, etc.)
+        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
+        // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
+        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
+        // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+        glfwPollEvents();
+
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        myApp.renderUI(font);
+
+        // Rendering
+        ImGui::Render();
+        int display_w, display_h;
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+        glClear(GL_COLOR_BUFFER_BIT);
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        glfwSwapBuffers(window);
+    }
+#ifdef __EMSCRIPTEN__
+    EMSCRIPTEN_MAINLOOP_END;
+#endif
+
+    // Cleanup
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
+
+    return 0;
+}
+
+
+

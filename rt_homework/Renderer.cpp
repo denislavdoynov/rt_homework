@@ -18,24 +18,27 @@ Renderer::Renderer(Scene& scene) :
 {
 }
 
-void Renderer::renderScene(const std::string& filename)
+int Renderer::renderScene(const std::string& filename, FrameBuffer* buffer, std::stringstream* log)
 {
     auto timeStart = std::chrono::high_resolution_clock::now();
-
+    int totalSeconds = 0;
     const Settings& settings = _scene.settings();
     FrameBuffer framebuffer(settings.ImageWidth * settings.ImageHeight);
 
 #ifdef MULTI_THREADED
-    std::cout << "Multi-threaded render started" << std::endl;
+    if(log) {
+        *log << "Multi-threaded render started..." << std::endl;
+    }
+
     // Incease thread count on CPUs with more cores
     const int threadCount = 10;
     std::vector<std::thread> renderThreads;
     renderThreads.reserve(threadCount);
     for (int threadId = 0; threadId < threadCount; ++threadId) {
         renderThreads.emplace_back([this, threadId, threadCount, &framebuffer]() {
-            int step = framebuffer.size() / threadCount;
+            int step = (int)framebuffer.size() / threadCount;
             int startIndex = step * threadId;
-            int endIndex = (threadId+1 == threadCount) ? framebuffer.size() : (startIndex + step - 1);
+            int endIndex = (threadId+1 == threadCount) ? (int)framebuffer.size() : (startIndex + step - 1);
             for (int i = startIndex; i < endIndex; ++i) {
                 int depth = 0;
                 Ray ray(_scene.camera().position(), primaryRayDirection(i));
@@ -50,27 +53,41 @@ void Renderer::renderScene(const std::string& filename)
     }
 
 #else
-    std::cout << "Single-threaded render started" << std::endl;
-     for (int i = 0; i < pixelSize; ++i) {
-         int depth = 0;
-         Ray ray(_scene.camera().position(), primaryRayDirection(i));
-         framebuffer[i] = castRay(ray, depth);
+    if (log) {
+        *log << "Single-threaded render started..." << std::endl;
+    }
+
+    for (int i = 0; i < pixelSize; ++i) {
+        int depth = 0;
+        Ray ray(_scene.camera().position(), primaryRayDirection(i));
+        framebuffer[i] = castRay(ray, depth);
     }
 #endif
 
-    auto timeEnd = std::chrono::high_resolution_clock::now();
-    auto passedTime = std::chrono::duration<double, std::milli>(timeEnd - timeStart).count();
-    std::cout << "Render " << _scene.name() << " done in: " << (int)(passedTime / 1000) << " sec(s)" << std::endl;
+    // Used to display on the screen
+    if(buffer) {
+        *buffer = framebuffer;
+    }
 
+    int passedTime = (int)std::chrono::duration<double, std::milli>(std::chrono::high_resolution_clock::now() - timeStart).count() / 1000;
+    if (log) {
+        *log << "Render " << _scene.name() << " done in: " << passedTime << " sec(s)" << std::endl;
+    }
+
+    totalSeconds += passedTime;
     timeStart = std::chrono::high_resolution_clock::now();
 
-    // Pixels rendered so write to file
+    // Pixels were rendered, so write to file
     PPMFile file(filename, settings.ImageWidth, settings.ImageHeight, MAX_COLOR_COMPONENT);
     file.writeFrameBuffer(framebuffer);
 	
-    timeEnd = std::chrono::high_resolution_clock::now();
-    passedTime = std::chrono::duration<double, std::milli>(timeEnd - timeStart).count();
-    std::cout << "Write " << filename << " done in: " << (int)(passedTime / 1000) << " sec(s)" << std::endl;
+    passedTime = (int)std::chrono::duration<double, std::milli>(std::chrono::high_resolution_clock::now() - timeStart).count() / 1000;
+    if (log) {
+        *log << "Write " << filename << " done in: " << passedTime << " sec(s)" << std::endl;
+    }
+    totalSeconds += passedTime;
+
+    return totalSeconds;
 }
 
 bool Renderer::traceShadow(const Ray& ray) const 
@@ -137,10 +154,8 @@ Color Renderer::castRay(const Ray& ray, int& depth) const
                 // Trace shadow ray
                 Ray shadowRay(intersaction.Point + intersaction.Triangle->normal() * _shadowBias, lightDir);
                 if(!traceShadow(shadowRay)) {             
-                    const Vector normalTri = intersaction.Triangle->metrial().SmoothShading ? 
-                        intersaction.Triangle->smoothNormal(intersaction.Point) : intersaction.Triangle->normal();
-
-                    float cosLaw = std::max(0.f, lightDir.dot(normalTri));
+                    const Vector hitNormal = intersaction.Triangle->hitNormal(intersaction.Point);
+                    float cosLaw = std::max(0.f, lightDir.dot(hitNormal));
                     float colorCorrection = light.Intensity / area * cosLaw;
                     Vector lightContribution(intersaction.Triangle->metrial().Albedo);
                     lightContribution *= colorCorrection;
@@ -155,15 +170,16 @@ Color Renderer::castRay(const Ray& ray, int& depth) const
     #endif
 
             return finalColor;
+
         } else if (intersaction.Triangle->metrial().Type == Material::Type::Reflective) {
                        
             if(depth >= _scene.settings().ReflectiveDepth) {
                 return _scene.settings().BackGroundColor;
             }
-
-            float dotProd = ray.direction().dot(intersaction.Triangle->normal());
-            Vector reflectionDir(ray.direction() - (intersaction.Triangle->normal() * 2.f * dotProd));
-            Point origin(intersaction.Point + intersaction.Triangle->normal() * _shadowBias);
+            const Vector hitNormal = intersaction.Triangle->hitNormal(intersaction.Point);
+            float dotProd = ray.direction().dot(hitNormal);
+            Vector reflectionDir(ray.direction() - (hitNormal * 2.f * dotProd));
+            Point origin(intersaction.Point + hitNormal * _shadowBias);
             Ray reflectionRay(origin, reflectionDir.normal());
             return castRay(reflectionRay, depth);
         }
@@ -177,8 +193,8 @@ Vector Renderer::primaryRayDirection(int pixelIdx) const
     const Settings& settings = _scene.settings();
 
     // Convert index based pixel to x, y coordinates
-    float x = pixelIdx % settings.ImageWidth;
-    float y = pixelIdx / settings.ImageWidth;
+    float x = (float)(pixelIdx % settings.ImageWidth);
+    float y = (float)(pixelIdx / settings.ImageWidth);
 
     const Camera& camera = _scene.camera();    
     // Calculate coordinates in 2d space

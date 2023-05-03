@@ -2,9 +2,11 @@
 #include "Camera.h"
 #include <sstream>
 #include <algorithm>
+#include <assert.h>
+#include "Scene.h"
 
 using namespace std;
-ColorRGB::ColorRGB(unsigned short r, unsigned short g, unsigned short b) :
+ColorRGB::ColorRGB(unsigned char r, unsigned char g, unsigned char b) :
 	R(r), G(g), B(b) {
 }
 
@@ -15,7 +17,7 @@ ColorRGB::ColorRGB(unsigned short r, unsigned short g, unsigned short b) :
 
 string ColorRGB::toString() {
 	stringstream ss;
-	ss << R << " " << G << " " << B << "\t";
+	ss << (short)R << " " << (short)G << " " << (short)B << "\t";
 	return ss.str();
 }
 
@@ -147,9 +149,9 @@ float Vector::dot(const Vector& other) const
 
 ColorRGB Vector::toColor(int maxColorComponent) const
 {
-	unsigned short r = (unsigned short)(maxColorComponent * Utils::clamp(0, 1, _array[0]));
-	unsigned short g = (unsigned short)(maxColorComponent * Utils::clamp(0, 1, _array[1]));
-	unsigned short b = (unsigned short)(maxColorComponent * Utils::clamp(0, 1, _array[2]));
+	unsigned char r = (unsigned char)(maxColorComponent * Utils::clamp(0, 1, _array[0]));
+	unsigned char g = (unsigned char)(maxColorComponent * Utils::clamp(0, 1, _array[1]));
+	unsigned char b = (unsigned char)(maxColorComponent * Utils::clamp(0, 1, _array[2]));
 	return {r, g, b};
 }
 
@@ -192,6 +194,15 @@ void Triangle::recalc()
 	V2.Normal += _normal;
 }
 
+const Vector Triangle::hitNormal(const Point& p) const
+{
+	if(_material.SmoothShading) {
+		return smoothNormal(p);
+	} else {
+		return normal();
+	}
+}
+
 const Vector& Triangle::normal() const
 {	
 	return _normal;
@@ -201,17 +212,28 @@ const Vector Triangle::smoothNormal(const Point& p) const
 {
 	// Calculate smoothNormal
 	UV uvCoord = uv(p);
-	return V1.Normal * uvCoord.u + V2.Normal * uvCoord.v + V0.Normal * (1 - uvCoord.u - uvCoord.v);
-
+	Vector smoorthNormal(V1.Normal* uvCoord.u + V2.Normal * uvCoord.v + V0.Normal * (1.f - uvCoord.u - uvCoord.v));
+	return smoorthNormal.normal();
 }
 
 UV Triangle::uv(const Point& p) const
 {
 	Vector V0P = p - V0.Vert;
-	UV uv;
-	float invArea = 1.f / _rectArea;
-	uv.u = V0P.cross(_V0V2).magnitude() * invArea;
-	uv.v = _V0V1.cross(V0P).magnitude() * invArea;
+	Vector V1P = p - V1.Vert;
+	//float invArea = 1.f / _rectArea;
+	float area = _V0V1.cross(_V0V2).magnitude();
+
+	/*UV uv{  
+		_V0V1.cross(V1P).magnitude() / area,
+		_V1V2.cross(V1P).magnitude() / area
+	};*/
+
+	UV uv{
+		V0P.cross(_V0V2).magnitude() / area,
+		_V0V1.cross(V0P).magnitude() / area
+	};
+
+	assert(uv.u + uv.v <= 1.f);
 	return uv;
 
 }

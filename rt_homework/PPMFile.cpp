@@ -18,7 +18,6 @@ void PPMFile::writeFrameBuffer(const FrameBuffer& framebuffer)
 	_ppmFileStream << std::endl;
 }
 
-
 PPMFile::~PPMFile() {
 	_ppmFileStream.close();
 }
