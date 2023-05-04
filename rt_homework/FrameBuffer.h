@@ -1,7 +1,8 @@
 #pragma once
 
-#include <vector>
 #include "Utils.h"
+#include <vector>
+#include <mutex>
 
 class FrameBuffer
 {
@@ -11,12 +12,14 @@ public:
     ~FrameBuffer();
 
     FrameBuffer& operator=(const FrameBuffer& rhs);
-    void push(Color&& color);
     Color& operator[](int index);    
 
+    void genImageData();
     size_t size() const { return _buffer.size(); }
     const std::vector<Color>& buffer() const { return _buffer; }
-    unsigned char* imageData();
+
+    unsigned char* lockImageData();
+    void unlockImageData();
 
 
 private:

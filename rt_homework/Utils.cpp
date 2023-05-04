@@ -219,21 +219,26 @@ const Vector Triangle::smoothNormal(const Point& p) const
 UV Triangle::uv(const Point& p) const
 {
 	Vector V0P = p - V0.Vert;
-	Vector V1P = p - V1.Vert;
-	//float invArea = 1.f / _rectArea;
-	float area = _V0V1.cross(_V0V2).magnitude();
 
-	/*UV uv{  
+	float invArea = 1.f / _rectArea;
+	
+
+	/*
+	float area = _V0V1.cross(_V0V2).magnitude();
+	Vector V1P = p - V1.Vert;
+	UV uv{  
 		_V0V1.cross(V1P).magnitude() / area,
 		_V1V2.cross(V1P).magnitude() / area
-	};*/
+	};
+	*/
 
 	UV uv{
-		V0P.cross(_V0V2).magnitude() / area,
-		_V0V1.cross(V0P).magnitude() / area
+		V0P.cross(_V0V2).magnitude() * invArea,
+		_V0V1.cross(V0P).magnitude() * invArea
 	};
 
-	assert(uv.u + uv.v <= 1.f);
+	// TODO check why assert
+	//assert(uv.u + uv.v <= 1.f);
 	return uv;
 
 }

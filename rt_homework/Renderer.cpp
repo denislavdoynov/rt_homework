@@ -67,6 +67,7 @@ int Renderer::renderScene(const std::string& filename, FrameBuffer* buffer, std:
     // Used to display on the screen
     if(buffer) {
         *buffer = framebuffer;
+        buffer->genImageData();
     }
 
     int passedTime = (int)std::chrono::duration<double, std::milli>(std::chrono::high_resolution_clock::now() - timeStart).count() / 1000;
@@ -152,8 +153,10 @@ Color Renderer::castRay(const Ray& ray, int& depth) const
                 float area = light.getIllumination(intersaction.Point, lightDir);
      
                 // Trace shadow ray
-                Ray shadowRay(intersaction.Point + intersaction.Triangle->normal() * _shadowBias, lightDir);
-                if(!traceShadow(shadowRay)) {             
+                Point origin(intersaction.Point + intersaction.Triangle->normal() * _scene.settings().ShadowBias);
+                Ray shadowRay(origin, lightDir);
+                if(!traceShadow(shadowRay)) {    
+                    // Trace shadow could use the smooth normal
                     const Vector hitNormal = intersaction.Triangle->hitNormal(intersaction.Point);
                     float cosLaw = std::max(0.f, lightDir.dot(hitNormal));
                     float colorCorrection = light.Intensity / area * cosLaw;
@@ -179,7 +182,8 @@ Color Renderer::castRay(const Ray& ray, int& depth) const
             const Vector hitNormal = intersaction.Triangle->hitNormal(intersaction.Point);
             float dotProd = ray.direction().dot(hitNormal);
             Vector reflectionDir(ray.direction() - (hitNormal * 2.f * dotProd));
-            Point origin(intersaction.Point + hitNormal * _shadowBias);
+
+            Point origin(intersaction.Point + hitNormal * _scene.settings().ShadowBias);
             Ray reflectionRay(origin, reflectionDir.normal());
             return castRay(reflectionRay, depth);
         }

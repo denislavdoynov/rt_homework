@@ -31,6 +31,5 @@ private:
 
 private:
 	Scene& _scene;
-	float _shadowBias = 0.00011f;
 };
 

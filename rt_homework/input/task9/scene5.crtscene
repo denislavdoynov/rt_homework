@@ -57,7 +57,7 @@
 		{
 			"type": "diffuse",
 			"albedo": [
-				0.9, 0.6, 0.9
+				0.8, 0.7, 0.9
 			],
 			"smooth_shading": true
 		}			

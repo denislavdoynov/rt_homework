@@ -19,7 +19,8 @@ struct Settings
 	Color BackGroundColor;
 	int ImageWidth = 0;
 	int ImageHeight = 0;
-	int ReflectiveDepth = 6;
+	int ReflectiveDepth = 4; 
+	float ShadowBias = 0.01f;
 };
 
 struct Material

@@ -1,6 +1,8 @@
 #include "FrameBuffer.h"
 #include <assert.h>
 
+static std::mutex m;
+
 FrameBuffer::FrameBuffer(size_t size)
 {
     _buffer.resize(size);
@@ -18,22 +20,17 @@ FrameBuffer& FrameBuffer::operator=(const FrameBuffer& rhs)
 {
     _buffer = rhs._buffer;
     _size = rhs._size;
-    if(_imageData) {
-        delete[] _imageData;
-        _imageData = nullptr;
-    }
+    
     return *this;
 }
 
-void FrameBuffer::push(Color&& color) 
+void FrameBuffer::genImageData()
 {
-    _buffer.emplace_back(std::forward<Color>(color));
-}
-
-unsigned char* FrameBuffer::imageData() 
-{
-    if(_imageData)
-        return _imageData;
+    const std::lock_guard<std::mutex> lock(m);
+    if (_imageData) {
+        delete[] _imageData;
+        _imageData = nullptr;
+    }
 
     _imageData = new unsigned char[_buffer.size() * 3];
     int i = 0;
@@ -43,8 +40,17 @@ unsigned char* FrameBuffer::imageData()
         _imageData[i++] = pixel.G;
         _imageData[i++] = pixel.B;
     }
+}
 
+unsigned char* FrameBuffer::lockImageData() 
+{
+    m.lock();
     return _imageData;
+}
+
+void FrameBuffer::unlockImageData()
+{
+    m.unlock();
 }
 
 Color& FrameBuffer::operator[](int index) {

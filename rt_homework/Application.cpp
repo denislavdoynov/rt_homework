@@ -15,7 +15,7 @@ int renderAllTasks(FrameBuffer& buffer, std::stringstream& log);
 
 bool Application::loadTextureFromBuffer(int width, int height, GLuint* texture)
 {
-    if(_buffer.size() < width * height)
+    if(_buffer.size() == 0)
         return false;
 
     // Create a OpenGL texture identifier
@@ -33,8 +33,9 @@ bool Application::loadTextureFromBuffer(int width, int height, GLuint* texture)
 #if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 #endif
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, _buffer.imageData());
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, _buffer.lockImageData());
 
+    _buffer.unlockImageData();
     *texture = imageTexture;
 
     return true;
@@ -51,7 +52,7 @@ void Application::renderUI(ImFont* font)
 {
     // Dialog
     ImGui::PushFont(font);
-    ImGui::Begin("Scene Renderer", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Begin("Scene Renderer", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse);
     if (ImGui::Button("Render")) {
         // Do nothing for now - auto render
     }
@@ -247,13 +248,13 @@ int renderAllTasks(FrameBuffer& buffer, std::stringstream& log)
     if (scene.loadScene("input\\task9\\scene3.crtscene")) {
         elapsedTime += renderer.renderScene("output\\task9\\task9_3.ppm", &buffer, &log);
     }
-
+    
     if (scene.loadScene("input\\task9\\scene4.crtscene")) {
         elapsedTime += renderer.renderScene("output\\task9\\task9_4.ppm", &buffer, &log);
-    }/*
+    }
     if (scene.loadScene("input\\task9\\scene5.crtscene")) {
         elapsedTime += renderer.renderScene("output\\task9\\task9_5.ppm", &buffer, &log);
-    }*/
+    }
 
 #endif
 
