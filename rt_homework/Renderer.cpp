@@ -145,8 +145,8 @@ Color Renderer::castRay(const Ray& ray, int& depth) const
     // Trace primary ray
     Intersaction intersaction;
     if (tracePrimary(ray, intersaction)) {
+        Color finalColor;
         if (intersaction.Triangle->metrial().Type == Material::Type::Diffuse) {
-            Color finalColor;
             for (const auto& light : _scene.lights()) {
                 // Shadow ray direction
                 Vector lightDir;
@@ -160,7 +160,7 @@ Color Renderer::castRay(const Ray& ray, int& depth) const
                     const Vector hitNormal = intersaction.Triangle->hitNormal(intersaction.Point);
                     float cosLaw = std::max(0.f, lightDir.dot(hitNormal));
                     float colorCorrection = light.Intensity / area * cosLaw;
-                    Vector lightContribution(intersaction.Triangle->metrial().Albedo);
+                    Color lightContribution(intersaction.Triangle->metrial().Albedo);
                     lightContribution *= colorCorrection;
                     finalColor += lightContribution;
                 }
@@ -185,7 +185,10 @@ Color Renderer::castRay(const Ray& ray, int& depth) const
 
             Point origin(intersaction.Point + hitNormal * _scene.settings().ShadowBias);
             Ray reflectionRay(origin, reflectionDir.normal());
-            return castRay(reflectionRay, depth);
+
+            finalColor = castRay(reflectionRay, depth);
+            finalColor *= intersaction.Triangle->metrial().Albedo;
+            return finalColor;
         }
     }
 

@@ -64,6 +64,14 @@ Vector& Vector::operator+=(const Vector& other)
 	return *this;
 }
 
+Vector& Vector::operator*=(const Vector& other)
+{
+	_array[0] *= other._array[0];
+	_array[1] *= other._array[1];
+	_array[2] *= other._array[2];
+	return *this;
+}
+
 bool Vector::operator==(const Vector& other)
 {
 	return  _array[0] == other._array[0] &&
