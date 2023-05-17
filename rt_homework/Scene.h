@@ -98,9 +98,13 @@ public:
 	void compileGeometry();
 	bool loadScene(const std::string filename);
 
+	// When we want to update the settings
 	Camera& camera() { return _camera; }
 	Settings& settings() { return _settings; }
-	std::string& name() { return _sceneFile; }
+
+	const Camera& camera() const { return _camera; }
+	const Settings& settings() const { return _settings; }
+	const std::string& name() const { return _sceneFile; }
 	const Triangles& triangles() const { return _triangles; }
 	const Lights& lights() const { return _lights; }
 

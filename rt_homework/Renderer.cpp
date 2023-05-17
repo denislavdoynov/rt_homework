@@ -3,23 +3,36 @@
 #include "PPMFile.h"
 #include "Common.h"
 #include "Ray.h"
-#include "Utils.h"
 #include "FrameBuffer.h"
 
 #include <chrono>
 #include <assert.h>
 #include <iostream>
+#include <sstream>
+#include <memory>
 
 #define MULTI_THREADED
 //#define BARYCENTRIC_COLORS
 
-Renderer::Renderer(Scene& scene) :
+Renderer::Renderer(const Scene& scene) :
     _scene(scene)
+{
+}
+
+Renderer::Renderer(std::shared_ptr<Scene>& scene) :
+    _scenePtr(scene), _scene(*_scenePtr)
 {
 }
 
 int Renderer::renderScene(const std::string& filename, FrameBuffer* buffer, std::stringstream* log)
 {
+    if (filename.empty() && !buffer) {
+        if (log) {
+            *log << "No output for rendering. Giving up..." << std::endl;
+        }
+        return 0;
+    }
+
     auto timeStart = std::chrono::high_resolution_clock::now();
     int totalSeconds = 0;
     const Settings& settings = _scene.settings();
@@ -41,7 +54,7 @@ int Renderer::renderScene(const std::string& filename, FrameBuffer* buffer, std:
             int endIndex = (threadId+1 == threadCount) ? (int)framebuffer.size() : (startIndex + step - 1);
             for (int i = startIndex; i < endIndex; ++i) {
                 int depth = 0;
-                Ray ray(_scene.camera().position(), primaryRayDirection(i));
+                PrimaryRay ray(_scene.camera().position(), primaryRayDirection(i));
                 framebuffer[i] = castRay(ray, depth);
             }
         });
@@ -76,34 +89,28 @@ int Renderer::renderScene(const std::string& filename, FrameBuffer* buffer, std:
     }
 
     totalSeconds += passedTime;
-    timeStart = std::chrono::high_resolution_clock::now();
 
-    // Pixels were rendered, so write to file
-    PPMFile file(filename, settings.ImageWidth, settings.ImageHeight, MAX_COLOR_COMPONENT);
-    file.writeFrameBuffer(framebuffer);
+    // Could pass empty string and render only on screen so check it
+    if(!filename.empty()) {
+        timeStart = std::chrono::high_resolution_clock::now();
+
+        // Pixels were rendered, so write to file
+        PPMFile file(filename, settings.ImageWidth, settings.ImageHeight, MAX_COLOR_COMPONENT);
+        file.writeFrameBuffer(framebuffer);
 	
-    passedTime = (int)std::chrono::duration<double, std::milli>(std::chrono::high_resolution_clock::now() - timeStart).count() / 1000;
-    if (log) {
-        *log << "Write " << filename << " done in: " << passedTime << " sec(s)" << std::endl;
+        passedTime = (int)std::chrono::duration<double, std::milli>(std::chrono::high_resolution_clock::now() - timeStart).count() / 1000;
+        if (log) {
+            *log << "Write " << filename << " done in: " << passedTime << " sec(s)" << std::endl;
+        }
+        totalSeconds += passedTime;
     }
-    totalSeconds += passedTime;
 
     return totalSeconds;
 }
 
-bool Renderer::traceShadow(const Ray& ray) const 
+bool Renderer::trace(const Ray& ray, Intersaction* intersaction) const
 {
-    return trace(ray, nullptr, true);
-}
-
-bool Renderer::tracePrimary(const Ray& ray, Intersaction& intersaction) const
-{
-    return trace(ray, &intersaction, false);
-}
-
-bool Renderer::trace(const Ray& ray, Intersaction* intersaction, bool shadowRay) const
-{
-    if((!intersaction && !shadowRay) || (intersaction && shadowRay)) {
+    if((!intersaction && !ray.shadow()) || (intersaction && ray.shadow())) {
         assert(false);
         return false;
     }
@@ -120,7 +127,7 @@ bool Renderer::trace(const Ray& ray, Intersaction* intersaction, bool shadowRay)
             {
                 Vector p = ray.origin() + (ray.direction() * t);
                 if (triangle.checkIntersaction(p)) {
-                    if (shadowRay) {
+                    if (ray.shadow()) {
                         return true;
                     }
 
@@ -144,7 +151,7 @@ Color Renderer::castRay(const Ray& ray, int& depth) const
 
     // Trace primary ray
     Intersaction intersaction;
-    if (tracePrimary(ray, intersaction)) {
+    if (trace(ray, &intersaction)) {
         Color finalColor;
         if (intersaction.Triangle->metrial().Type == Material::Type::Diffuse) {
             for (const auto& light : _scene.lights()) {
@@ -154,8 +161,8 @@ Color Renderer::castRay(const Ray& ray, int& depth) const
      
                 // Trace shadow ray
                 Point origin(intersaction.Point + intersaction.Triangle->normal() * _scene.settings().ShadowBias);
-                Ray shadowRay(origin, lightDir);
-                if(!traceShadow(shadowRay)) {    
+                ShadowRay shadowRay(origin, lightDir);
+                if(!trace(shadowRay)) {
                     // Trace shadow could use the smooth normal
                     const Vector hitNormal = intersaction.Triangle->hitNormal(intersaction.Point);
                     float cosLaw = std::max(0.f, lightDir.dot(hitNormal));
@@ -184,7 +191,7 @@ Color Renderer::castRay(const Ray& ray, int& depth) const
             Vector reflectionDir(ray.direction() - (hitNormal * 2.f * dotProd));
 
             Point origin(intersaction.Point + hitNormal * _scene.settings().ShadowBias);
-            Ray reflectionRay(origin, reflectionDir.normal());
+            PrimaryRay reflectionRay(origin, reflectionDir.normal());
 
             finalColor = castRay(reflectionRay, depth);
             finalColor *= intersaction.Triangle->metrial().Albedo;

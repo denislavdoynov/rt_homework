@@ -1,12 +1,11 @@
 #pragma once
+
 #include "Utils.h"
-#include "Ray.h"
-#include <vector>
-#include <thread>
-#include <sstream>
+#include <memory>
 
 class Scene;
 class FrameBuffer;
+class Ray;
 
 struct Intersaction
 {
@@ -17,19 +16,19 @@ struct Intersaction
 class Renderer
 {
 public:
-	Renderer(Scene& scene);
+	Renderer(const Scene& scene);
+	Renderer(std::shared_ptr<Scene>& scene);
 	int renderScene(const std::string& filename, FrameBuffer* buffer = nullptr, std::stringstream* log = nullptr);
 
 private:
 	Color castRay(const Ray& ray, int& depth) const;
-	bool traceShadow(const Ray& ray) const;
-	bool tracePrimary(const Ray& ray, Intersaction& intersaction) const;
-	
-private:
-	Vector primaryRayDirection(int pixelIdx) const;
-	bool trace(const Ray& ray, Intersaction* intersaction, bool shadowRay = false) const;
+	bool trace(const Ray& ray, Intersaction* intersaction = nullptr) const;
 
 private:
-	Scene& _scene;
+	Vector primaryRayDirection(int pixelIdx) const;
+	
+private:
+	const std::shared_ptr<Scene> _scenePtr;
+	const Scene& _scene;
 };
 

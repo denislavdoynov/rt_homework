@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FrameBuffer.h"
+#include "Renderer.h"
 
 #include <sstream>
 #include <future>
@@ -11,6 +12,7 @@
 #include <GLFW/glfw3.h> // Will drag system OpenGL headers
 
 struct ImFont;
+
 class Application
 {
 public:
@@ -19,6 +21,8 @@ public:
 
 private:
     bool loadTextureFromBuffer(int width, int height, GLuint* texture);
+    void renderAsync();
+    void keyboardEvents();
 
 private:
     std::stringstream _output;
@@ -27,5 +31,8 @@ private:
     int _elapsedTime = 0;
     std::future<int> _future;
     bool _rendering = true;
+    const float _step = 5.f;
+    std::unique_ptr<Renderer> _renderer;
+    std::shared_ptr<Scene> _scene;
 };
 

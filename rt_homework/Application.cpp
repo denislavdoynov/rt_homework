@@ -2,7 +2,6 @@
 #include "Shape.h"
 #include "Scene.h"
 #include "Common.h"
-#include "Renderer.h"
 
 #include "imgui.h"
 
@@ -47,15 +46,66 @@ void Application::renderTasks()  {
         return renderAllTasks(_buffer, _output);
         });
 }
+void Application::renderAsync() {
+    _rendering = true;
+    _future = std::async(std::launch::async, [this]() {
+        if(_renderer) 
+            return _renderer->renderScene("", &_buffer, &_output);
+        else 
+            return 0;
+    });
+}
+
+void Application::keyboardEvents() 
+{
+    if (ImGui::IsKeyPressed(ImGuiKey_D))
+    {
+        if (_scene) {
+            _scene->camera().pan(_step);
+            renderAsync();
+        }
+    }
+
+    if (ImGui::IsKeyPressed(ImGuiKey_A))
+    {
+        if (_scene) {
+            _scene->camera().pan(-_step);
+            renderAsync();
+        }
+    }
+
+    if (ImGui::IsKeyPressed(ImGuiKey_W))
+    {
+        if (_scene) {
+            _scene->camera().tilt(_step);
+            renderAsync();
+        }
+    }
+
+    if (ImGui::IsKeyPressed(ImGuiKey_S))
+    {
+        if (_scene) {
+            _scene->camera().tilt(-_step);
+            renderAsync();
+        }
+    }
+}
 
 void Application::renderUI(ImFont* font)
 {
     // Dialog
     ImGui::PushFont(font);
     ImGui::Begin("Scene Renderer", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse);
-    if (ImGui::Button("Render")) {
-        // Do nothing for now - auto render
+    if (ImGui::Button("Local Render")) {
+        _scene = std::make_shared<Scene>();
+        _renderer = std::make_unique<Renderer>(_scene);
+        if (_scene->loadScene("input\\task9\\scene1.crtscene")) {
+            renderAsync();
+        }
     }
+
+    // Process wsad keyboard events to move the camera
+    keyboardEvents();
 
     if (_future.valid() && _future.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
         _rendering = false;
@@ -244,7 +294,7 @@ int renderAllTasks(FrameBuffer& buffer, std::stringstream& log)
     }/*
     if (scene.loadScene("input\\task9\\scene2.crtscene")) {
         renderer.renderScene("output\\task9\\task9_2.ppm");
-    }*/
+    }
     if (scene.loadScene("input\\task9\\scene3.crtscene")) {
         elapsedTime += renderer.renderScene("output\\task9\\task9_3.ppm", &buffer, &log);
     }
@@ -254,7 +304,7 @@ int renderAllTasks(FrameBuffer& buffer, std::stringstream& log)
     }
     if (scene.loadScene("input\\task9\\scene5.crtscene")) {
         elapsedTime += renderer.renderScene("output\\task9\\task9_5.ppm", &buffer, &log);
-    }
+    }*/
 
 #endif
 
