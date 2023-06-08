@@ -149,21 +149,30 @@ bool JsonParser::load(Scene& scene)
     const auto& materials = doc.FindMember(Material::JSON_MATERIALS)->value;
     if (!materials.IsNull() && materials.IsArray()) {
         for (const auto& material : materials.GetArray()) {
-            const auto& albedo = material.FindMember(Material::JSON_MATERIALS_ALBEDO)->value;
-            if (albedo.IsArray()) {
-                Material sceneMaterial;
-                sceneMaterial.Albedo = loadVector(albedo.GetArray());
-                sceneMaterial.SmoothShading = material.FindMember(Material::JSON_MATERIALS_SMOOTH)->value.GetBool();
+            Material sceneMaterial;
+            sceneMaterial.SmoothShading = material.FindMember(Material::JSON_MATERIALS_SMOOTH)->value.GetBool();
 
-                const char* type = material.FindMember(Material::JSON_MATERIALS_TYPE)->value.GetString();
-                if (strcmp(type, "diffuse") == 0) {
-                    sceneMaterial.Type = Material::Type::Diffuse;
-                } else if (strcmp(type, "reflective") == 0) {
-                    sceneMaterial.Type = Material::Type::Reflective;
+            const auto& albedo = material.FindMember(Material::JSON_MATERIALS_ALBEDO)->value;
+            if (!albedo.IsNull() && albedo.IsArray()) {
+               sceneMaterial.Albedo = loadVector(albedo.GetArray());
+            }          
+
+            const char* type = material.FindMember(Material::JSON_MATERIALS_TYPE)->value.GetString();
+            if (strcmp(type, "diffuse") == 0) {
+                sceneMaterial.Type = Material::Type::Diffuse;
+            } else if (strcmp(type, "reflective") == 0) {
+                sceneMaterial.Type = Material::Type::Reflective;
+            } else if (strcmp(type, "refractive") == 0) {
+                sceneMaterial.Type = Material::Type::Refractive;
+                const auto& IOR = material.FindMember(Material::JSON_MATERIALS_IOR)->value;
+                if(!IOR.IsNull()) {
+                    sceneMaterial.IOR = IOR.GetFloat();
                 }
-           
-                scene.addMaterial(std::move(sceneMaterial));
+            } else if (strcmp(type, "constant") == 0) {
+                sceneMaterial.Type = Material::Type::Constant;
             }
+           
+            scene.addMaterial(std::move(sceneMaterial));
         }
     }
 

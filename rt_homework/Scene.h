@@ -5,6 +5,9 @@
 #include <memory>
 #include <vector>
 
+class Ray;
+struct Intersaction;
+
 using TriangleIndexes = std::vector<std::tuple<int, int, int>>;
 using Vertices = std::vector<std::unique_ptr<Vertex>>;
 
@@ -19,8 +22,9 @@ struct Settings
 	Color BackGroundColor;
 	int ImageWidth = 0;
 	int ImageHeight = 0;
-	int ReflectiveDepth = 4; 
-	float ShadowBias = 0.01f;
+	int MaxDepth = 7; 
+	float Bias = 0.0001f;
+	float RefractionBias = 0.0001f;
 };
 
 struct Material
@@ -28,17 +32,23 @@ struct Material
 	enum class Type
 	{
 		Diffuse,
-		Reflective
+		Reflective,
+		Refractive,
+		Constant
 	};
 
 	static constexpr const char* JSON_MATERIALS = "materials";
 	static constexpr const char* JSON_MATERIALS_TYPE = "type";
 	static constexpr const char* JSON_MATERIALS_ALBEDO= "albedo";
 	static constexpr const char* JSON_MATERIALS_SMOOTH = "smooth_shading";
+	static constexpr const char* JSON_MATERIALS_IOR = "ior";
 
 	Type Type = Type::Diffuse;
 	bool SmoothShading = false;
 	Vector Albedo{ 1.f, 1.f, 1.f };
+	
+	// Set default air IOR
+	float IOR = 1.f;
 };
 
 
@@ -76,7 +86,6 @@ struct Light
 struct Object
 {
 	std::vector<int> _triangles;
-
 };
 
 class Scene
@@ -107,6 +116,8 @@ public:
 	const std::string& name() const { return _sceneFile; }
 	const Triangles& triangles() const { return _triangles; }
 	const Lights& lights() const { return _lights; }
+
+	bool intersect(const Ray& ray, Intersaction* intersaction = nullptr) const;
 
 private:
 	void cleanup();

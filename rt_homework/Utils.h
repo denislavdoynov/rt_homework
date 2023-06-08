@@ -6,16 +6,6 @@ const float PI = 3.14159265358979f;
 
 constexpr float ROUNDING_ERROR_FLOAT = 0.0001f;
 
-class Utils
-{
-public:
-	static float getArea(float radius);
-	//! returns if a equals b, taking possible rounding errors into account
-	static bool equals(const float a, const float b, const float tolerance = ROUNDING_ERROR_FLOAT);
-
-	static float clamp(const float& lo, const float& hi, const float& v);
-};
-
 struct ColorRGB {
 	ColorRGB() = default;
 	ColorRGB(unsigned char r, unsigned char g, unsigned char b);
@@ -43,6 +33,7 @@ struct Vector {
 	Vector& operator*=(const Vector& other);
 	Vector& operator*=(float scalar);
 	Vector operator/(float scalar) const;
+	Vector operator-() const;
 	friend std::ostream& operator<<(std::ostream& os, const Vector& other);
 
 	Vector getNDC(float imageWidth, float imageHeight) const;
@@ -138,4 +129,16 @@ private:
 	Vector _V0V2;
 	Color _color{ 1.f, 1.f, 1.f };
 	const Material& _material;
+};
+
+class Utils
+{
+public:
+	static float getArea(float radius);
+	//! returns if a equals b, taking possible rounding errors into account
+	static bool equals(const float a, const float b, const float tolerance = ROUNDING_ERROR_FLOAT);
+
+	static float clamp(const float& lo, const float& hi, const float& v);
+
+	static float fresnel(const Vector& rayDir, const Vector& surfNormal);
 };

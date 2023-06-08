@@ -5,7 +5,7 @@
 
 #include "imgui.h"
 
-#define TASK_9
+#define TASK_11
 
 constexpr int width = 1920;
 constexpr int height = 1080;
@@ -44,7 +44,7 @@ void Application::renderTasks()  {
     _rendering = true;
     _future = std::async(std::launch::async, [this]() {
         return renderAllTasks(_buffer, _output);
-        });
+    });
 }
 void Application::renderAsync() {
     _rendering = true;
@@ -285,13 +285,13 @@ int renderAllTasks(FrameBuffer& buffer, std::stringstream& log)
 #ifdef TASK_9
     Scene scene;
     Renderer renderer(scene);
-    /*if (scene.loadScene("input\\task9\\scene0.crtscene")) {
+    if (scene.loadScene("input\\task9\\scene0.crtscene")) {
         renderer.renderScene("output\\task9\\task9_0.ppm");
     }
-    /*
+    
     if (scene.loadScene("input\\task9\\scene1.crtscene")) {
         renderer.renderScene("output\\task9\\task9_1.ppm");
-    }/*
+    }
     if (scene.loadScene("input\\task9\\scene2.crtscene")) {
         renderer.renderScene("output\\task9\\task9_2.ppm");
     }
@@ -304,6 +304,23 @@ int renderAllTasks(FrameBuffer& buffer, std::stringstream& log)
     }
     if (scene.loadScene("input\\task9\\scene5.crtscene")) {
         elapsedTime += renderer.renderScene("output\\task9\\task9_5.ppm", &buffer, &log);
+    }
+
+#endif
+
+#ifdef TASK_11
+    Scene scene;
+    Renderer renderer(scene);
+    /*if (scene.loadScene("input\\task11\\scene0.crtscene")) {
+        elapsedTime += renderer.renderScene("output\\task11\\task0.ppm", &buffer, &log);
+    }
+    */
+    if (scene.loadScene("input\\task11\\scene1.crtscene")) {
+        elapsedTime += renderer.renderScene("output\\task11\\task1.ppm", &buffer, &log);
+    }
+
+    /*if (scene.loadScene("input\\task11\\scene2.crtscene")) {
+        elapsedTime += renderer.renderScene("output\\task11\\task2.ppm", &buffer, &log);
     }*/
 
 #endif

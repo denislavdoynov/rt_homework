@@ -72,6 +72,13 @@ Vector& Vector::operator*=(const Vector& other)
 	return *this;
 }
 
+Vector Vector::operator-() const 
+{ 
+	return {-_array[0], 
+			-_array[1], 
+			-_array[2]}; 
+}
+
 bool Vector::operator==(const Vector& other)
 {
 	return  _array[0] == other._array[0] &&
@@ -81,7 +88,9 @@ bool Vector::operator==(const Vector& other)
 
 Vector Vector::operator*(float scalar) const
 {
-	return Vector(_array[0] * scalar, _array[1] * scalar, _array[2] * scalar);
+	return {_array[0] * scalar, 
+			_array[1] * scalar, 
+			_array[2] * scalar};
 }
 Vector& Vector::operator*=(float scalar)
 {
@@ -338,4 +347,8 @@ bool Utils::equals(const float a, const float b, const float tolerance)
 float Utils::clamp(const float& lo, const float& hi, const float& v)
 {
 	return std::max(lo, std::min(hi, v));
+}
+
+float Utils::fresnel(const Vector& rayDir, const Vector& surfNormal) {
+    return 0.5f * std::pow(1.f + rayDir.dot(surfNormal), 5.f);
 }

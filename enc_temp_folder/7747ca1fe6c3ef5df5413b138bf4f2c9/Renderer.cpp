@@ -205,7 +205,7 @@ Color Renderer::castRay(const Ray& ray) const
                 float fresnel = Utils::fresnel(ray.direction(), surfNormal);
                 finalColor = reflectionColor * fresnel + refractionColor * (1 - fresnel);
 
-                // TODO not sure if we apply albedo here
+                // TODO NOt sure if we apply albedo here
                 //finalColor *= intersaction.Triangle->metrial().Albedo;
                 return finalColor;
             }

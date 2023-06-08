@@ -1,6 +1,7 @@
 #include "Scene.h"
 #include "Common.h"
 #include "JsonParser.h"
+#include "Ray.h"
 
 using namespace std;
 
@@ -73,4 +74,41 @@ void Scene::compileGeometry()
             triangle.normalizeVertices();
         }
     }
+}
+
+bool Scene::intersect(const Ray& ray, Intersaction* intersaction) const
+{
+    if((!intersaction && !ray.shadow()) || (intersaction && ray.shadow())) {
+        assert(false);
+        return false;
+    }
+
+    float minPointDistance = std::numeric_limits<float>::max();
+    for (const auto& triangle : triangles()) {
+        float rayProj = ray.direction().dot(triangle.normal());
+        // If generated ray is not paralel to triangle plane
+        if (!Utils::equals(rayProj, 0.0f)) {
+            float distance = triangle.distance(ray.origin());
+            float t = distance / rayProj;
+            // Check if triangle is not behind the ray
+            if (t > 0.f)
+            {
+                Vector p = ray.origin() + (ray.direction() * t);
+                if (triangle.checkIntersaction(p)) {
+                    if (ray.shadow()) {
+                        return false;
+                    }
+
+                    // Check if point is more close to the origin
+                    if (intersaction && t <= minPointDistance) {
+                        minPointDistance = t;
+                        intersaction->Point = p;
+                        intersaction->Triangle = &triangle;
+                    }
+                }
+            }
+        }
+    }
+
+    return intersaction && intersaction->Triangle != nullptr;
 }
