@@ -23,8 +23,8 @@ struct Settings
 	int ImageWidth = 0;
 	int ImageHeight = 0;
 	int MaxDepth = 7; 
-	float Bias = 0.0001f;
-	float RefractionBias = 0.0001f;
+	float Bias = 0.001f;
+	float RefractionBias = 0.001f;
 };
 
 struct Material
@@ -78,7 +78,7 @@ struct Light
 		lightDir = Position - point;
 		float radius = lightDir.magnitude();
 		lightDir.normalize();
-		return Utils::getArea(radius);
+		return radius;
 
 	}
 };

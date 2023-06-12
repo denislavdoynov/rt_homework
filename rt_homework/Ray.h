@@ -16,8 +16,12 @@ public:
     const Vector& origin() const { return _origin; }
     const Vector& direction() const { return _direction; }
     int depth() const { return _depth; }
+    float tMax() const { return _tMax; }
 
     virtual const bool shadow() const = 0;
+
+protected:
+    float _tMax = std::numeric_limits<float>::max();
 
 private:
     const Vector _origin;
@@ -28,7 +32,11 @@ private:
 class ShadowRay : public Ray
 {
 public:
-    ShadowRay(const Vector& origin, const Vector& direction, int depth = 0) : Ray(origin, direction, depth) {}
+    ShadowRay(const Vector& origin, const Vector& direction, float magnitude, int depth = 0) : Ray(origin, direction, depth) 
+    {
+        _tMax = magnitude;
+    }
+
     const bool shadow() const override { return true; }
 };
 

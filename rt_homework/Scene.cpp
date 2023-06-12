@@ -57,8 +57,13 @@ void Scene::compileGeometry()
 {
     bool computeSmoorthNormals = false;
     for(const auto& mesh : _goemetryObjects ) {
-        // Compute the smoorth normals
-        computeSmoorthNormals = computeSmoorthNormals || _materials[mesh.MaterialIndex].SmoothShading;
+        // Compute the smoorth normals if we got any material defined
+        if(!_materials.empty()) {
+            computeSmoorthNormals = computeSmoorthNormals || _materials[mesh.MaterialIndex].SmoothShading;
+        } else {
+            _materials.push_back(Material());
+        }
+
         for (auto& triangleIndex : mesh.TriangleIndexes) {
             _triangles.emplace_back(
                                 *(mesh.Vertices.at(get<0>(triangleIndex)).get()),
@@ -83,7 +88,7 @@ bool Scene::intersect(const Ray& ray, Intersaction* intersaction) const
         return false;
     }
 
-    float minPointDistance = std::numeric_limits<float>::max();
+    float minPointDistance = ray.tMax();
     for (const auto& triangle : triangles()) {
         float rayProj = ray.direction().dot(triangle.normal());
         // If generated ray is not paralel to triangle plane
@@ -95,15 +100,18 @@ bool Scene::intersect(const Ray& ray, Intersaction* intersaction) const
             {
                 Vector p = ray.origin() + (ray.direction() * t);
                 if (triangle.checkIntersaction(p)) {
-                    if (ray.shadow()) {
-                        return false;
-                    }
-
                     // Check if point is more close to the origin
-                    if (intersaction && t <= minPointDistance) {
-                        minPointDistance = t;
-                        intersaction->Point = p;
-                        intersaction->Triangle = &triangle;
+                    if(t < minPointDistance) {
+                        if (intersaction) {
+                            minPointDistance = t;
+                            intersaction->Point = p;
+                            intersaction->Triangle = &triangle;
+                        } 
+                        // Shadow rays should not intersect with transparent objects.
+                        else if(ray.shadow() && triangle.metrial().Type != Material::Type::Refractive) {
+                            // Found trangle between the light and shadow-ray, no need to check for more
+                            return true;
+                        }
                     }
                 }
             }

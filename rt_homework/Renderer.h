@@ -21,7 +21,7 @@ private:
 private:
 	Vector primaryRayDirection(int pixelIdx) const;
 	
-	bool refractRayDirection(const Vector& rayDir, const Vector& surfNormal, float eta, float cosThetaI, Vector& refRayDir) const;
+	bool refractRayDirection(const Vector& rayDir, Vector& surfNormal, const float& ior, Vector& refRayDir) const;
 	Color reflectiveRayDirection(const Vector& rayDir, const Vector& surfNormal) const;
 
 private:

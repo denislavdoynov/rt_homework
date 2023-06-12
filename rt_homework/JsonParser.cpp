@@ -128,7 +128,11 @@ bool JsonParser::load(Scene& scene)
                 loadTriangles(triangles.GetArray(), mesh.TriangleIndexes);
             }
 
-            mesh.MaterialIndex = object.FindMember(Mesh::JSON_OBJECTS_MATERIAL)->value.GetInt();
+            const auto& meterialIndex = object.FindMember(Mesh::JSON_OBJECTS_MATERIAL)->value;
+            if(!meterialIndex.IsNull() && meterialIndex.IsInt()) {
+                mesh.MaterialIndex = meterialIndex.GetInt();
+            }
+
             scene.addMesh(std::move(mesh));            
         }
     }

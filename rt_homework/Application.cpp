@@ -311,17 +311,34 @@ int renderAllTasks(FrameBuffer& buffer, std::stringstream& log)
 #ifdef TASK_11
     Scene scene;
     Renderer renderer(scene);
-    /*if (scene.loadScene("input\\task11\\scene0.crtscene")) {
+
+    if (scene.loadScene("input\\task11\\scene0.crtscene")) {
         elapsedTime += renderer.renderScene("output\\task11\\task0.ppm", &buffer, &log);
-    }
-    */
+    }   
     if (scene.loadScene("input\\task11\\scene1.crtscene")) {
         elapsedTime += renderer.renderScene("output\\task11\\task1.ppm", &buffer, &log);
     }
-
-    /*if (scene.loadScene("input\\task11\\scene2.crtscene")) {
+    if (scene.loadScene("input\\task11\\scene2.crtscene")) {
         elapsedTime += renderer.renderScene("output\\task11\\task2.ppm", &buffer, &log);
-    }*/
+    }
+     if (scene.loadScene("input\\task11\\scene3.crtscene")) {
+        elapsedTime += renderer.renderScene("output\\task11\\task3.ppm", &buffer, &log);
+    }  
+    if (scene.loadScene("input\\task11\\scene4.crtscene")) {
+        elapsedTime += renderer.renderScene("output\\task11\\task4.ppm", &buffer, &log);
+    }
+    if (scene.loadScene("input\\task11\\scene5.crtscene")) {
+        elapsedTime += renderer.renderScene("output\\task11\\task5.ppm", &buffer, &log);
+    }
+    if (scene.loadScene("input\\task11\\scene6.crtscene")) {
+        elapsedTime += renderer.renderScene("output\\task11\\task6.ppm", &buffer, &log);
+    }  
+    if (scene.loadScene("input\\task11\\scene7.crtscene")) {
+        elapsedTime += renderer.renderScene("output\\task11\\task7.ppm", &buffer, &log);
+    }
+    if (scene.loadScene("input\\task11\\scene8.crtscene")) {
+        elapsedTime += renderer.renderScene("output\\task11\\task8.ppm", &buffer, &log);
+    }
 
 #endif
 

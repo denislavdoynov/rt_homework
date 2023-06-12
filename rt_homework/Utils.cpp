@@ -92,6 +92,14 @@ Vector Vector::operator*(float scalar) const
 			_array[1] * scalar, 
 			_array[2] * scalar};
 }
+
+Vector Vector::operator*(const Vector& other) const
+{
+	return {_array[0] * other._array[0], 
+			_array[1] * other._array[1], 
+			_array[2] * other._array[2]};
+}
+
 Vector& Vector::operator*=(float scalar)
 {
 	_array[0] *= scalar;

@@ -30,6 +30,7 @@ struct Vector {
 	bool operator==(const Vector& other);
 	Vector operator-(const Vector& other) const;
 	Vector operator*(float scalar) const;
+	Vector operator*(const Vector& other) const;
 	Vector& operator*=(const Vector& other);
 	Vector& operator*=(float scalar);
 	Vector operator/(float scalar) const;
