@@ -18,6 +18,7 @@ void Scene::cleanup()
     _lights.clear();
     _sceneFile.clear();
     _materials.clear();
+    _aabbox.reset();
 }
 
 bool Scene::loadScene(const std::string filename)
@@ -74,11 +75,19 @@ void Scene::compileGeometry()
         } 
     }
 
-    if (computeSmoorthNormals) {
-        for (auto& triangle : _triangles) {
+    for (auto& triangle : _triangles) {
+        if(computeSmoorthNormals) {
             triangle.normalizeVertices();
         }
+
+        _aabbox.expandBox(triangle);
     }
+    
+}
+
+bool Scene::intersectAABB(const Ray& ray) const
+{
+    return _aabbox.checkIntersection(ray);
 }
 
 bool Scene::intersect(const Ray& ray, Intersaction* intersaction) const

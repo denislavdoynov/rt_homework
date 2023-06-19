@@ -136,7 +136,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AABBox.cpp" />
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="BucketManager.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="ImGui\backends\imgui_impl_glfw.cpp" />
@@ -149,13 +151,18 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Ray.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="ThreadManager.cpp" />
+    <ClCompile Include="Triangle.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="PPMFile.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shape.cpp" />
+    <ClCompile Include="Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AABBox.h" />
     <ClInclude Include="Application.h" />
+    <ClInclude Include="BucketManager.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="ImGui\backends\imgui_impl_glfw.h" />
@@ -166,11 +173,14 @@
     <ClInclude Include="JsonParser.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="ThreadManager.h" />
+    <ClInclude Include="Triangle.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="PPMFile.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Shape.h" />
+    <ClInclude Include="Vector.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

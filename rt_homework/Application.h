@@ -18,6 +18,7 @@ class Application
 public:
     void renderTasks();
     void renderUI(ImFont* font);
+    void close();
 
 private:
     bool loadTextureFromBuffer(int width, int height, GLuint* texture);
@@ -31,7 +32,8 @@ private:
     int _elapsedTime = 0;
     std::future<int> _future;
     bool _rendering = true;
-    const float _step = 5.f;
+    const float _stepMove = 0.4f;
+    const float _stepRot = 0.2f;
     std::unique_ptr<Renderer> _renderer;
     std::shared_ptr<Scene> _scene;
 };

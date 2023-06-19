@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "Utils.h"
 
 float Camera::convertToRads(const float degs)
 {
@@ -30,11 +31,13 @@ void Camera::boom(float f) {
 
 void Camera::pan(const float degs)
 {
-    auto rads = convertToRads(degs);
+    const float rads = convertToRads(degs);
+    const float cost = cosf(rads);
+    const float sint = sinf(rads);
     const Matrix rotate{
-        cosf(rads), 0.f, -sinf(rads),
-        0.f,           1.f, -0.f,
-        sinf(rads), 0.f, cosf(rads)
+        cost, 0.f, sint,
+        0.f,  1.f, 0.f,
+        -sint, 0.f, cost
     };
 
     _rotation = _rotation * rotate;
@@ -42,11 +45,13 @@ void Camera::pan(const float degs)
 
 void Camera::tilt(const float degs)
 {
-    auto rads = convertToRads(degs);
+    const float rads = convertToRads(degs);
+    const float cost = cosf(rads);
+    const float sint = sinf(rads);
     const Matrix rotate{
-        1.f,    0.f,           0.f,
-        0.f,    cosf(rads), -sinf(rads),
-        0.f,    sinf(rads), cosf(rads)
+        1.f,    0.f,  0.f,
+        0.f,    cost, -sint,
+        0.f,    sint, cost
     };
 
     _rotation = _rotation * rotate;
@@ -54,11 +59,13 @@ void Camera::tilt(const float degs)
 
 void Camera::roll(const float degs)
 {
-    auto rads = convertToRads(degs);
+    const float rads = convertToRads(degs);
+    const float cost = cosf(rads);
+    const float sint = sinf(rads);
     const Matrix rotate{
-        cosf(rads),  -sinf(rads), 0.f,
-        sinf(rads),  cosf(rads),  0.f,
-        0.f,            0.f,             1.f
+        cost,  -sint, 0.f,
+        sint,  cost,  0.f,
+        0.f,   0.f,   1.f
     };
 
     _rotation = _rotation * rotate;

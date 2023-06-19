@@ -142,6 +142,9 @@ int WINAPI WinMain(
 
         glfwSwapBuffers(window);
     }
+
+    myApp.close();
+
 #ifdef __EMSCRIPTEN__
     EMSCRIPTEN_MAINLOOP_END;
 #endif

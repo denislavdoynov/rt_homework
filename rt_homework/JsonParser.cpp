@@ -98,6 +98,11 @@ bool JsonParser::load(Scene& scene)
         if (!imageSettings.IsNull() && imageSettings.IsObject()) {
             sceneSettings.ImageWidth = imageSettings.FindMember(Settings::JSON_SETTINGS_WIDTH)->value.GetInt();
             sceneSettings.ImageHeight = imageSettings.FindMember(Settings::JSON_SETTINGS_HEIGHT)->value.GetInt();
+
+            const auto& bucketSize = imageSettings.FindMember(Settings::JSON_SETTINGS_BUCKET_SIZE)->value;
+            if(!bucketSize.IsNull() && bucketSize.IsInt()) {
+                sceneSettings.BucketSize = bucketSize.GetInt();            
+            }
         }
     }
 

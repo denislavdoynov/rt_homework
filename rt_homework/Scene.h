@@ -2,6 +2,8 @@
 
 #include "Shape.h"
 #include "Camera.h"
+#include "AABBox.h"
+#include "Triangle.h"
 #include <memory>
 #include <vector>
 
@@ -11,6 +13,8 @@ struct Intersaction;
 using TriangleIndexes = std::vector<std::tuple<int, int, int>>;
 using Vertices = std::vector<std::unique_ptr<Vertex>>;
 
+constexpr int BUCKET_SIZE = 1024;
+
 struct Settings
 {
 	static constexpr const char* JSON_SETTINGS = "settings";
@@ -18,13 +22,16 @@ struct Settings
 	static constexpr const char* JSON_SETTINGS_IMAGE_SETTINGS = "image_settings";
 	static constexpr const char* JSON_SETTINGS_WIDTH = "width";
 	static constexpr const char* JSON_SETTINGS_HEIGHT = "height";
+	static constexpr const char* JSON_SETTINGS_BUCKET_SIZE = "bucket_size";
 
 	Color BackGroundColor;
-	int ImageWidth = 0;
-	int ImageHeight = 0;
+	uint32_t ImageWidth = 0;
+	uint32_t ImageHeight = 0;
 	int MaxDepth = 7; 
 	float Bias = 0.001f;
 	float RefractionBias = 0.001f;
+	uint32_t BucketSize = BUCKET_SIZE;
+
 };
 
 struct Material
@@ -118,11 +125,13 @@ public:
 	const Lights& lights() const { return _lights; }
 
 	bool intersect(const Ray& ray, Intersaction* intersaction = nullptr) const;
+	bool intersectAABB(const Ray& ray) const;
 
 private:
 	void cleanup();
 
 private:
+	AABBox _aabbox;
 	Triangles _triangles;
 	Camera _camera;
 	Settings _settings;

@@ -1,7 +1,9 @@
 #pragma once
 
+#include "Vector.h"
 #include "Utils.h"
 
+class Triangle;
 struct Intersaction
 {
 	Point Point;
@@ -21,7 +23,7 @@ public:
     virtual const bool shadow() const = 0;
 
 protected:
-    float _tMax = std::numeric_limits<float>::max();
+    float _tMax = MAX_FLOAT;
 
 private:
     const Vector _origin;

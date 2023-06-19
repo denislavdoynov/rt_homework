@@ -5,7 +5,9 @@
 
 #include "imgui.h"
 
-#define TASK_11
+#define TASK_12
+
+const char* LOCAL_RENDER_SCENE = "input\\task11\\scene2.crtscene";
 
 constexpr int width = 1920;
 constexpr int height = 1080;
@@ -61,7 +63,8 @@ void Application::keyboardEvents()
     if (ImGui::IsKeyPressed(ImGuiKey_D))
     {
         if (_scene) {
-            _scene->camera().pan(_step);
+            _scene->camera().pan(_stepMove);
+            _scene->camera().truck(_stepRot);
             renderAsync();
         }
     }
@@ -69,7 +72,8 @@ void Application::keyboardEvents()
     if (ImGui::IsKeyPressed(ImGuiKey_A))
     {
         if (_scene) {
-            _scene->camera().pan(-_step);
+            _scene->camera().pan(-_stepMove);
+            _scene->camera().truck(-_stepRot);
             renderAsync();
         }
     }
@@ -77,7 +81,8 @@ void Application::keyboardEvents()
     if (ImGui::IsKeyPressed(ImGuiKey_W))
     {
         if (_scene) {
-            _scene->camera().tilt(_step);
+            _scene->camera().tilt(_stepMove);
+            _scene->camera().boom(_stepRot);
             renderAsync();
         }
     }
@@ -85,9 +90,17 @@ void Application::keyboardEvents()
     if (ImGui::IsKeyPressed(ImGuiKey_S))
     {
         if (_scene) {
-            _scene->camera().tilt(-_step);
+            _scene->camera().tilt(-_stepMove);
+            _scene->camera().boom(-_stepRot);
             renderAsync();
         }
+    }
+}
+
+void Application::close() 
+{
+    if(_renderer) {
+        _renderer->abort();
     }
 }
 
@@ -99,7 +112,7 @@ void Application::renderUI(ImFont* font)
     if (ImGui::Button("Local Render")) {
         _scene = std::make_shared<Scene>();
         _renderer = std::make_unique<Renderer>(_scene);
-        if (_scene->loadScene("input\\task9\\scene1.crtscene")) {
+        if (_scene->loadScene(LOCAL_RENDER_SCENE)) {
             renderAsync();
         }
     }
@@ -340,6 +353,16 @@ int renderAllTasks(FrameBuffer& buffer, std::stringstream& log)
         elapsedTime += renderer.renderScene("output\\task11\\task8.ppm", &buffer, &log);
     }
 
+#endif
+
+#ifdef TASK_12
+    Scene scene;
+    Renderer renderer(scene);
+
+    if (scene.loadScene("input\\task12\\scene0.crtscene")) {
+        elapsedTime += renderer.renderScene("output\\task12\\task0.ppm", &buffer, &log);
+    }
+ 
 #endif
 
     return elapsedTime;

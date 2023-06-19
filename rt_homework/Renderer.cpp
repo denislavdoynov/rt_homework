@@ -9,7 +9,7 @@
 #include <assert.h>
 #include <iostream>
 #include <sstream>
-#include <memory>
+#include <memory> 
 
 #define MULTI_THREADED
 //#define BARYCENTRIC_COLORS
@@ -33,46 +33,28 @@ int Renderer::renderScene(const std::string& filename, FrameBuffer* buffer, std:
         return 0;
     }
 
-    auto timeStart = std::chrono::high_resolution_clock::now();
-    int totalMS = 0;
-    const Settings& settings = _scene.settings();
-    FrameBuffer framebuffer(settings.ImageWidth * settings.ImageHeight);
+    _totalElapsedTime = 0;
+    _bucketManager.updateSceneSettings(_scene.settings());
 
+    FrameBuffer framebuffer(_bucketManager.totalPixels());
+    auto timeStart = std::chrono::high_resolution_clock::now();
 #ifdef MULTI_THREADED
     if(log) {
         *log << "Multi-threaded render started..." << std::endl;
     }
+       
+    _threadManager.startRender(*this, framebuffer, _bucketManager);
 
-    // Incease thread count on CPUs with more cores
-    const int threadCount = 10;
-    std::vector<std::thread> renderThreads;
-    renderThreads.reserve(threadCount);
-    for (int threadId = 0; threadId < threadCount; ++threadId) {
-        renderThreads.emplace_back([this, threadId, threadCount, &framebuffer]() {
-            int step = (int)framebuffer.size() / threadCount;
-            int startIndex = step * threadId;
-            int endIndex = (threadId+1 == threadCount) ? (int)framebuffer.size() : (startIndex + step - 1);
-            for (int i = startIndex; i < endIndex; ++i) {
-                PrimaryRay ray(_scene.camera().position(), primaryRayDirection(i));
-                framebuffer[i] = castRay(ray);
-            }
-        });
-    }
-
-    // Wait for all threads to finish
-    for (auto& th : renderThreads) {
-        th.join();
-    }
+    if(_abort)
+        return 0;
 
 #else
     if (log) {
         *log << "Single-threaded render started..." << std::endl;
     }
 
-    for (int i = 0; i < pixelSize; ++i) {
-        int depth = 0;
-        Ray ray(_scene.camera().position(), primaryRayDirection(i));
-        framebuffer[i] = castRay(ray, depth);
+    for (uint32_t i = 0; i < _bucketManager.totalPixels(); ++i) {
+        framebuffer[i] = castCameraRay(i);
     }
 #endif
 
@@ -87,24 +69,40 @@ int Renderer::renderScene(const std::string& filename, FrameBuffer* buffer, std:
         *log << "Render " << _scene.name() << " done in: " << passedTime << " ms" << std::endl;
     }
 
-    totalMS += passedTime;
+    _totalElapsedTime += passedTime;
 
     // Could pass empty string and render only on screen so check it
     if(!filename.empty()) {
-        timeStart = std::chrono::high_resolution_clock::now();
-
         // Pixels were rendered, so write to file
-        PPMFile file(filename, settings.ImageWidth, settings.ImageHeight, MAX_COLOR_COMPONENT);
-        file.writeFrameBuffer(framebuffer);
-	
-        passedTime = (int)std::chrono::duration<double, std::milli>(std::chrono::high_resolution_clock::now() - timeStart).count();
+        passedTime = writeOutputFile(filename, framebuffer);
         if (log) {
             *log << "Write " << filename << " done in: " << passedTime << " ms" << std::endl;
         }
-        totalMS += passedTime;
+        _totalElapsedTime += passedTime;
     }
 
-    return totalMS;
+    return _totalElapsedTime;
+}
+
+int Renderer::writeOutputFile(const std::string& filename, const FrameBuffer& framebuffer) 
+{
+    auto start = std::chrono::high_resolution_clock::now();
+    const Settings& settings = _scene.settings();
+    PPMFile file(filename, settings.ImageWidth, settings.ImageHeight, MAX_COLOR_COMPONENT);
+    file.writeFrameBuffer(framebuffer);
+	
+    return (int)std::chrono::duration<double, std::milli>(std::chrono::high_resolution_clock::now() - start).count();
+}
+
+Color Renderer::castCameraRay(int pixelIdx) const
+{
+    PrimaryRay ray(_scene.camera().position(), primaryRayDirection(pixelIdx));
+    // Check for intersecation with aabbox otherwise return background color
+    if(_scene.intersectAABB(ray)) {
+        return castRay(ray);
+    }
+    
+    return _scene.settings().BackGroundColor;
 }
 
 Color Renderer::castRay(const Ray& ray) const
@@ -115,95 +113,13 @@ Color Renderer::castRay(const Ray& ray) const
         switch (intersaction.Triangle->metrial().Type)
         {
             case Material::Type::Diffuse: 
-            {
-                Color finalColor;
-                for (const auto& light : _scene.lights()) {
-                    // Shadow ray direction
-                    Vector lightDir;
-                    float lightLenght = light.getIllumination(intersaction.Point, lightDir);
-                    float area = Utils::getArea(lightLenght);
-                    const Vector surfNormal = intersaction.Triangle->hitNormal(intersaction.Point);
-
-                    // Trace shadow ray
-                    ShadowRay shadowRay(
-                        intersaction.Point + surfNormal * _scene.settings().Bias, 
-                        lightDir, 
-                        lightLenght,
-                        ray.depth());
-
-                    if(!_scene.intersect(shadowRay)) {
-                        // Trace shadow could use the smooth normal
-                        float cosLaw = std::max(0.f, lightDir.dot(surfNormal));
-                        float colorCorrection = light.Intensity / area * cosLaw;
-                        Color lightContribution(intersaction.Triangle->metrial().Albedo);
-                        lightContribution *= colorCorrection;
-                        finalColor += lightContribution;
-                    }
-                }
-
-        #ifdef BARYCENTRIC_COLORS
-                UV uvCoord = intersaction.Triangle->uv(intersaction.Point);
-                finalColor.setY(uvCoord.u);
-                finalColor.setZ(uvCoord.v);
-        #endif
-
-                return finalColor;
-
-            }
-
+               return shadeDeffuse(ray, intersaction);
+            
             case Material::Type::Reflective: 
-            {        
-                if(ray.depth() >= _scene.settings().MaxDepth) {
-                    return _scene.settings().BackGroundColor;
-                }
-
-                // Cast reflective ray
-                Vector surfNormal = intersaction.Triangle->hitNormal(intersaction.Point);
-                PrimaryRay reflectionRay(
-                    intersaction.Point + surfNormal * _scene.settings().Bias, 
-                    reflectiveRayDirection(ray.direction(), surfNormal), 
-                    ray.depth());
-
-                Color color = castRay(ray);
-                return color * intersaction.Triangle->metrial().Albedo;
-            }
+                return shadeReflective(ray, intersaction);
 
             case Material::Type::Refractive: 
-            {               
-                if(ray.depth() >= _scene.settings().MaxDepth) {
-                    return _scene.settings().BackGroundColor;
-                }
- 
-                Vector refrationDir;
-                Color refractionColor;
-                Vector surfNormal = intersaction.Triangle->hitNormal(intersaction.Point);
-                bool castRefraction = refractRayDirection(ray.direction(), surfNormal, intersaction.Triangle->metrial().IOR, refrationDir);
-                if(castRefraction)
-                {    
-                    // Cast refraction ray
-                    PrimaryRay refrationRay(
-                        intersaction.Point + (-surfNormal * _scene.settings().RefractionBias),
-                        refrationDir, 
-                        ray.depth());
-                    refractionColor = castRay(refrationRay);
-                }
-
-                // Cast reflecation ray
-                PrimaryRay reflectionRay(
-                    intersaction.Point + surfNormal * _scene.settings().Bias, 
-                    reflectiveRayDirection(ray.direction(), surfNormal), 
-                    ray.depth());
-
-                Color reflectionColor = castRay(reflectionRay);
-
-                // Caclulate fresnel only if we have refraction ray casted
-                if(castRefraction) {
-                    float fresnel = Utils::fresnel(ray.direction(), surfNormal);
-                    return reflectionColor * fresnel + refractionColor * (1.f - fresnel);
-                }
-
-                return reflectionColor;
-            }
+                return shadeRefractive(ray, intersaction);
         
             case Material::Type::Constant:
                 return intersaction.Triangle->metrial().Albedo;
@@ -216,6 +132,95 @@ Color Renderer::castRay(const Ray& ray) const
     return _scene.settings().BackGroundColor;
 }
 
+Color Renderer::shadeDeffuse(const Ray& ray, const Intersaction& intersaction) const 
+{
+    Color color;
+    for (const auto& light : _scene.lights()) {
+        // Shadow ray direction
+        Vector lightDir;
+        float lightLenght = light.getIllumination(intersaction.Point, lightDir);
+        float area = Utils::getArea(lightLenght);
+        const Vector surfNormal = intersaction.Triangle->hitNormal(intersaction.Point);
+
+        // Trace shadow ray
+        ShadowRay shadowRay(
+            intersaction.Point + surfNormal * _scene.settings().Bias, 
+            lightDir, 
+            lightLenght,
+            ray.depth());
+
+        if(!_scene.intersect(shadowRay)) {
+            // Trace shadow could use the smooth normal
+            float cosLaw = std::max(0.f, lightDir.dot(surfNormal));
+            float colorCorrection = light.Intensity / area * cosLaw;
+            Color lightContribution(intersaction.Triangle->metrial().Albedo);
+            lightContribution *= colorCorrection;
+            color += lightContribution;
+        }
+    }
+
+    #ifdef BARYCENTRIC_COLORS
+    UV uvCoord = intersaction.Triangle->uv(intersaction.Point);
+    color.setY(uvCoord.u);
+    color.setZ(uvCoord.v);
+    #endif
+
+    return color;
+}
+
+Color Renderer::shadeReflective(const Ray& ray, const Intersaction& intersaction) const 
+{
+    if(ray.depth() >= _scene.settings().MaxDepth) {
+        return _scene.settings().BackGroundColor;
+    }
+
+    // Cast reflective ray
+    Vector surfNormal = intersaction.Triangle->hitNormal(intersaction.Point);
+    PrimaryRay reflectionRay(
+        intersaction.Point + surfNormal * _scene.settings().Bias, 
+        reflectiveRayDirection(ray.direction(), surfNormal), 
+        ray.depth());
+
+    Color color = castRay(ray);
+    return color * intersaction.Triangle->metrial().Albedo;
+}
+
+Color Renderer::shadeRefractive(const Ray& ray, const Intersaction& intersaction) const 
+{
+    if(ray.depth() >= _scene.settings().MaxDepth) {
+        return _scene.settings().BackGroundColor;
+    }
+ 
+    Vector refrationDir;
+    Color refractionColor;
+    Vector surfNormal = intersaction.Triangle->hitNormal(intersaction.Point);
+    bool castRefraction = refractRayDirection(ray.direction(), surfNormal, intersaction.Triangle->metrial().IOR, refrationDir);
+    if(castRefraction)
+    {    
+        // Cast refraction ray
+        PrimaryRay refrationRay(
+            intersaction.Point + (-surfNormal * _scene.settings().RefractionBias),
+            refrationDir, 
+            ray.depth());
+        refractionColor = castRay(refrationRay);
+    }
+
+    // Cast reflecation ray
+    PrimaryRay reflectionRay(
+        intersaction.Point + surfNormal * _scene.settings().Bias, 
+        reflectiveRayDirection(ray.direction(), surfNormal), 
+        ray.depth());
+
+    Color reflectionColor = castRay(reflectionRay);
+
+    // Caclulate fresnel only if we have refraction ray casted
+    if(castRefraction) {
+        float fresnel = Utils::fresnel(ray.direction(), surfNormal);
+        return reflectionColor * fresnel + refractionColor * (1.f - fresnel);
+    }
+
+    return reflectionColor;
+}
 
 Color Renderer::reflectiveRayDirection(const Vector& rayDir, const Vector& surfNormal) const
 {
@@ -271,5 +276,11 @@ Vector Renderer::primaryRayDirection(int pixelIdx) const
     rayDirection = camera.rotation() * rayDirection;
 
     return rayDirection;
+}
+
+void Renderer::abort() 
+{ 
+    _abort = true;
+    _threadManager.abort();
 }
 
