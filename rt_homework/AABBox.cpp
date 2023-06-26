@@ -1,5 +1,6 @@
 #include "AABBox.h"
 #include "Triangle.h"
+#include <assert.h>
 
 AABBox::AABBox()
 {
@@ -8,8 +9,8 @@ AABBox::AABBox()
 
 void AABBox::expandBox(const Triangle& triangle) 
 {
-    _minBox.setMin(triangle.V0.Vert).setMin(triangle.V1.Vert).setMin(triangle.V2.Vert);
-    _maxBox.setMax(triangle.V0.Vert).setMax(triangle.V1.Vert).setMax(triangle.V2.Vert);
+    _min.setMin(triangle.V0.Vert).setMin(triangle.V1.Vert).setMin(triangle.V2.Vert);
+    _max.setMax(triangle.V0.Vert).setMax(triangle.V1.Vert).setMax(triangle.V2.Vert);
 }
 
 bool AABBox::checkIntersection(const Ray& ray) const 
@@ -19,8 +20,8 @@ bool AABBox::checkIntersection(const Ray& ray) const
     float tmin = MIN_FLOAT;
     float tmax = MAX_FLOAT;
     Vector invD = 1.f / ray.direction();
-	Vector t0s = (_minBox - ray.origin()) * invD;
-  	Vector t1s = (_maxBox - ray.origin()) * invD;
+	Vector t0s = (_min - ray.origin()) * invD;
+  	Vector t1s = (_max - ray.origin()) * invD;
     
   	Vector tsmaller = Vector::minVec(t0s, t1s);
     Vector tbigger  = Vector::maxVec(t0s, t1s);
@@ -31,13 +32,39 @@ bool AABBox::checkIntersection(const Ray& ray) const
 	return (tmin < tmax);
 }
 
+bool AABBox::checkIntersection(const AABBox& box) const
+{
+    for(int i = 0; i < Vector::SIZE; ++i) {
+        if(_min[i] > box._max[i] || _max[i] < box._min[i])
+            return false; 
+    }
+
+    return true;
+}
+
 void AABBox::reset() 
 {
-    _minBox.setX(MAX_FLOAT);
-    _minBox.setY(MAX_FLOAT);
-    _minBox.setZ(MAX_FLOAT);
+    _min.setX(MAX_FLOAT);
+    _min.setY(MAX_FLOAT);
+    _min.setZ(MAX_FLOAT);
 
-    _maxBox.setX(MIN_FLOAT);
-    _maxBox.setY(MIN_FLOAT);
-    _maxBox.setZ(MIN_FLOAT);
+    _max.setX(MIN_FLOAT);
+    _max.setY(MIN_FLOAT);
+    _max.setZ(MIN_FLOAT);
+}
+
+bool AABBox::split(int axisIndx, AABBox& box1, AABBox& box2)  const
+{
+    if(axisIndx >= Vector::SIZE) {
+        assert(false);
+        return false;
+    }
+      
+    const float middleCoord = _min[axisIndx] + (_max[axisIndx] - _min[axisIndx]) / 2;
+
+    box1 = *this;
+    box2 = *this;
+    box1._max[axisIndx] = middleCoord;
+    box2._min[axisIndx] = middleCoord;
+    return true;
 }

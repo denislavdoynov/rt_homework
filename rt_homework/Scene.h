@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "AABBox.h"
 #include "Triangle.h"
+#include "AccelerationTree.h"
 #include <memory>
 #include <vector>
 
@@ -90,28 +91,19 @@ struct Light
 	}
 };
 
-struct Object
-{
-	std::vector<int> _triangles;
-};
-
 class Scene
 {
 public:
-	using Triangles = std::vector<Triangle>;
-	using Objects = std::vector<Object>;
-
 	using Lights = std::vector<Light>;
 	using Materials = std::vector<Material>;
 	using GeometryObjects = std::vector<Mesh>;
 
-	Scene() = default;
+	Scene();
 	Scene(int imageWidth, int imageHeight);
 	void addLight(Light&& light);
 	void addMesh(Mesh&& mesh);
 	void addMaterial(Material&& mat);
-	void addGeometry(Triangle&& triangle);
-	void compileGeometry();
+	void addGeometry(Triangle* triangle);
 	bool loadScene(const std::string filename);
 
 	// When we want to update the settings
@@ -124,14 +116,14 @@ public:
 	const Triangles& triangles() const { return _triangles; }
 	const Lights& lights() const { return _lights; }
 
-	bool intersect(const Ray& ray, Intersaction* intersaction = nullptr) const;
-	bool intersectAABB(const Ray& ray) const;
+	bool intersect(const Ray& ray, const Triangles& triangles, Intersaction* intersaction = nullptr) const;
+	bool intersectAABBox(const Ray& ray, Triangles& triangles) const;
 
 private:
 	void cleanup();
+	void compileGeometry();
 
 private:
-	AABBox _aabbox;
 	Triangles _triangles;
 	Camera _camera;
 	Settings _settings;
@@ -139,4 +131,5 @@ private:
 	Lights _lights;
 	Materials _materials;
 	std::string _sceneFile;
+	AccelerationTree _accTree;
 };

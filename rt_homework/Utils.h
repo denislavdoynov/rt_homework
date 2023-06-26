@@ -1,14 +1,17 @@
 #pragma once
 
 #include <limits>
+#include <vector>
 
 constexpr float PI = 3.14159265358979f;
 constexpr float ROUNDING_ERROR_FLOAT = 0.0001f;
 constexpr float MAX_FLOAT = std::numeric_limits<float>::max();
-constexpr float MIN_FLOAT = std::numeric_limits<float>::min();
+constexpr float MIN_FLOAT = -MAX_FLOAT;
+
+class Triangle;
+using Triangles = std::vector<Triangle*>;
 
 class Vector;
-
 class Utils
 {
 public:

@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Vector.h"
-
-struct Material;
+#include "AABBox.h"
 
 struct UV
 {
@@ -17,6 +16,8 @@ struct Vertex
 	Vector Normal;
 
 };
+
+struct Material;
 
 class Triangle {
 
@@ -37,6 +38,7 @@ public:
 	// Recalculate normal and edge vectors
 	void recalc();
 	bool checkIntersaction(const Point& point) const;
+	bool checkIntersaction(const AABBox& AABBox) const;
 
 	Vertex& V0;
 	Vertex& V1;
@@ -54,4 +56,5 @@ private:
 	Vector _V0V2;
 	Color _color{ 1.f, 1.f, 1.f };
 	const Material& _material;
+	AABBox _trignaleAABBox;
 };

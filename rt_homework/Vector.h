@@ -50,19 +50,19 @@ public:
 	Vector& setMin(const Vector& other);
 	Vector& setMax(const Vector& other);
 
-	float x() const { return _array[0]; }
-	float y() const { return _array[1]; }
-	float z() const { return _array[2]; }
+	float x() const { return _data[0]; }
+	float y() const { return _data[1]; }
+	float z() const { return _data[2]; }
 
-	void setX(float x) { _array[0] = x; }
-	void setY(float y) { _array[1] = y; }
-	void setZ(float z) { _array[2] = z; }
+	void setX(float x) { _data[0] = x; }
+	void setY(float y) { _data[1] = y; }
+	void setZ(float z) { _data[2] = z; }
 
 	static Vector minVec(const Vector& v1, const Vector& v2);
 	static Vector maxVec(const Vector& v1, const Vector& v2);
 
 private:
-	float _array[SIZE] { 0.f, 0.f, 0.f };
+	float _data[SIZE] { 0.f, 0.f, 0.f };
 };
 
 class Matrix

@@ -1,5 +1,4 @@
 #include "Renderer.h"
-#include "Scene.h"
 #include "PPMFile.h"
 #include "Common.h"
 #include "Ray.h"
@@ -98,18 +97,20 @@ Color Renderer::castCameraRay(int pixelIdx) const
 {
     PrimaryRay ray(_scene.camera().position(), primaryRayDirection(pixelIdx));
     // Check for intersecation with aabbox otherwise return background color
-    if(_scene.intersectAABB(ray)) {
-        return castRay(ray);
+
+    Triangles trianlges;
+    if(_scene.intersectAABBox(ray, trianlges)) {
+        return castRay(ray, trianlges);
     }
     
     return _scene.settings().BackGroundColor;
 }
 
-Color Renderer::castRay(const Ray& ray) const
+Color Renderer::castRay(const Ray& ray, const Triangles& triangles) const
 {
     // Trace primary ray
     Intersaction intersaction;
-    if (_scene.intersect(ray, &intersaction)) {
+    if (_scene.intersect(ray, triangles, &intersaction)) {
         switch (intersaction.Triangle->metrial().Type)
         {
             case Material::Type::Diffuse: 
@@ -149,7 +150,7 @@ Color Renderer::shadeDeffuse(const Ray& ray, const Intersaction& intersaction) c
             lightLenght,
             ray.depth());
 
-        if(!_scene.intersect(shadowRay)) {
+        if(!_scene.intersect(shadowRay, _scene.triangles())) {
             // Trace shadow could use the smooth normal
             float cosLaw = std::max(0.f, lightDir.dot(surfNormal));
             float colorCorrection = light.Intensity / area * cosLaw;
@@ -181,7 +182,7 @@ Color Renderer::shadeReflective(const Ray& ray, const Intersaction& intersaction
         reflectiveRayDirection(ray.direction(), surfNormal), 
         ray.depth());
 
-    Color color = castRay(ray);
+    Color color = castRay(ray, _scene.triangles());
     return color * intersaction.Triangle->metrial().Albedo;
 }
 
@@ -202,7 +203,7 @@ Color Renderer::shadeRefractive(const Ray& ray, const Intersaction& intersaction
             intersaction.Point + (-surfNormal * _scene.settings().RefractionBias),
             refrationDir, 
             ray.depth());
-        refractionColor = castRay(refrationRay);
+        refractionColor = castRay(refrationRay, _scene.triangles());
     }
 
     // Cast reflecation ray
@@ -211,7 +212,7 @@ Color Renderer::shadeRefractive(const Ray& ray, const Intersaction& intersaction
         reflectiveRayDirection(ray.direction(), surfNormal), 
         ray.depth());
 
-    Color reflectionColor = castRay(reflectionRay);
+    Color reflectionColor = castRay(reflectionRay, _scene.triangles());
 
     // Caclulate fresnel only if we have refraction ray casted
     if(castRefraction) {

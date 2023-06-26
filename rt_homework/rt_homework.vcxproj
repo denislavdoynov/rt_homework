@@ -137,6 +137,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AABBox.cpp" />
+    <ClCompile Include="AccelerationTree.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="BucketManager.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -161,6 +162,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AABBox.h" />
+    <ClInclude Include="AccelerationTree.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="BucketManager.h" />
     <ClInclude Include="Camera.h" />

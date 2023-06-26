@@ -32,6 +32,7 @@ private:
     int _elapsedTime = 0;
     std::future<int> _future;
     bool _rendering = true;
+    char _sceneFilePath[_MAX_PATH] = {"input\\task13\\scene0.crtscene"};
     const float _stepMove = 0.4f;
     const float _stepRot = 0.2f;
     std::unique_ptr<Renderer> _renderer;

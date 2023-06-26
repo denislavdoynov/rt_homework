@@ -5,9 +5,7 @@
 
 #include "imgui.h"
 
-#define TASK_12
-
-const char* LOCAL_RENDER_SCENE = "input\\task11\\scene2.crtscene";
+//#define TASK_13
 
 constexpr int width = 1920;
 constexpr int height = 1080;
@@ -109,10 +107,13 @@ void Application::renderUI(ImFont* font)
     // Dialog
     ImGui::PushFont(font);
     ImGui::Begin("Scene Renderer", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse);
+   
+    ImGui::InputText("##Username",_sceneFilePath, IM_ARRAYSIZE(_sceneFilePath));
+    ImGui::SameLine();
     if (ImGui::Button("Local Render")) {
         _scene = std::make_shared<Scene>();
         _renderer = std::make_unique<Renderer>(_scene);
-        if (_scene->loadScene(LOCAL_RENDER_SCENE)) {
+        if (_scene->loadScene(_sceneFilePath)) {
             renderAsync();
         }
     }
@@ -131,7 +132,7 @@ void Application::renderUI(ImFont* font)
     }
     else {
         ImGui::SameLine();
-        ImGui::Text("Finished in %u second(s)", _elapsedTime);
+        ImGui::Text("Finished in %u ms(s)", _elapsedTime);
     }
 
     loadTextureFromBuffer(width, height, &_imageTexture);
@@ -198,9 +199,9 @@ int renderAllTasks(FrameBuffer& buffer, std::stringstream& log)
 #ifdef TASK_5
     {
         // Create triangle and add to the scene
-        Triangle t1({ -1.75, -1.75, -3 }, { 3.75, -1.75, -3 }, { 0, 1.75, -3 });
+        Triangle* t1 = new Triangle({ -1.75, -1.75, -3 }, { 3.75, -1.75, -3 }, { 0, 1.75, -3 });
         t1.setColor({ 3, 252, 11 });
-        Triangle t2({ 0.70, -1.75, -2 }, { 4.75, 1.75, -3 }, { 0, 1.75, -3 });
+        Triangle* t2 = new Triangle({ 0.70, -1.75, -2 }, { 4.75, 1.75, -3 }, { 0, 1.75, -3 });
         t2.setColor({ 252, 3, 140 });
 
         Scene scene;
@@ -210,7 +211,7 @@ int renderAllTasks(FrameBuffer& buffer, std::stringstream& log)
     }
     {
         Scene scene;
-        scene.addGeometry({ { -1.75, -1.75, -3 }, { 1.75, -1.75, -30 }, { 0, 1.75, -20 } });
+        scene.addGeometry(new Triangle( { -1.75, -1.75, -3 }, { 1.75, -1.75, -30 }, { 0, 1.75, -20 } ));
         scene.draw("output\\task5_a.ppm");
     }
 
@@ -221,9 +222,9 @@ int renderAllTasks(FrameBuffer& buffer, std::stringstream& log)
         // Create triangle and add to the scene
         Scene scene(IMAGE_WIDTH, IMAGE_HEIGHT);
         Renderer renderer(scene);
-        Triangle t1({ -1.75, -1.75, -3 }, { 3.75, -1.75, -3 }, { 0, 1.75, -3 });
+        Triangle* t1 = new Triangle({ -1.75, -1.75, -3 }, { 3.75, -1.75, -3 }, { 0, 1.75, -3 });
         t1.setColor({ 3, 252, 11 });
-        Triangle t2({ 0.70, -1.75, -2 }, { 4.75, 1.75, -3 }, { 0, 1.75, -3 });
+        Triangle* t2 = new Triangle({ 0.70, -1.75, -2 }, { 4.75, 1.75, -3 }, { 0, 1.75, -3 });
         t2.setColor({ 252, 3, 140 });
 
         scene.addGeometry(t1);
@@ -361,6 +362,20 @@ int renderAllTasks(FrameBuffer& buffer, std::stringstream& log)
 
     if (scene.loadScene("input\\task12\\scene0.crtscene")) {
         elapsedTime += renderer.renderScene("output\\task12\\task0.ppm", &buffer, &log);
+    }
+ 
+#endif
+
+#ifdef TASK_13
+    Scene scene;
+    Renderer renderer(scene);
+
+    if (scene.loadScene("input\\task13\\scene0.crtscene")) {
+        elapsedTime += renderer.renderScene("output\\task13\\task0.ppm", &buffer, &log);
+    }
+   
+    if (scene.loadScene("input\\task13\\scene1.crtscene")) {
+        elapsedTime += renderer.renderScene("output\\task13\\task1.ppm", &buffer, &log);
     }
  
 #endif

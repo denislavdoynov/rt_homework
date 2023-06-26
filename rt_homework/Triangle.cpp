@@ -34,6 +34,8 @@ void Triangle::recalc()
 	V0.Normal += _normal;
 	V1.Normal += _normal;
 	V2.Normal += _normal;
+
+	_trignaleAABBox.expandBox(*this);
 }
 
 const Vector Triangle::hitNormal(const Point& p) const
@@ -99,6 +101,11 @@ float Triangle::area() const
 {
 	// Triangle area is half of the rectangle
 	return _rectArea / 2;
+}
+
+bool Triangle::checkIntersaction(const AABBox& AABBox) const
+{
+	return _trignaleAABBox.checkIntersection(AABBox);
 }
 
 bool Triangle::checkIntersaction(const Point& point) const
