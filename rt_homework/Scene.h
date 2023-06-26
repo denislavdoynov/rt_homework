@@ -100,6 +100,7 @@ public:
 
 	Scene();
 	Scene(int imageWidth, int imageHeight);
+	~Scene();
 	void addLight(Light&& light);
 	void addMesh(Mesh&& mesh);
 	void addMaterial(Material&& mat);

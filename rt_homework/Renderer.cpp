@@ -3,6 +3,7 @@
 #include "Common.h"
 #include "Ray.h"
 #include "FrameBuffer.h"
+#include "Scene.h"
 
 #include <chrono>
 #include <assert.h>

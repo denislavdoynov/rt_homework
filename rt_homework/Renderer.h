@@ -3,6 +3,7 @@
 #include "BucketManager.h"
 #include "Vector.h"
 #include "ThreadManager.h"
+#include "Utils.h"
 #include <memory>
 #include <string>
 
