@@ -110,7 +110,7 @@ void Application::renderUI(ImFont* font)
     ImGui::PushFont(font);
     ImGui::Begin("Scene Renderer", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse);
    
-    ImGui::InputText("##Username",_sceneFilePath, IM_ARRAYSIZE(_sceneFilePath));
+    ImGui::InputText("##Scene",_sceneFilePath, IM_ARRAYSIZE(_sceneFilePath));
     ImGui::SameLine();
     if (ImGui::Button("Local Render")) {
         _scene = std::make_shared<Scene>();

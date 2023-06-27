@@ -9,7 +9,7 @@ constexpr float MAX_FLOAT = std::numeric_limits<float>::max();
 constexpr float MIN_FLOAT = -MAX_FLOAT;
 
 class Triangle;
-using Triangles = std::vector<Triangle*>;
+using Triangles = std::vector<Triangle>;
 
 class Vector;
 class Utils

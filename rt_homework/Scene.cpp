@@ -25,9 +25,6 @@ Scene::~Scene()
 void Scene::cleanup()
 {
     _goemetryObjects.clear();
-    for(auto t : _triangles) {
-        delete t;
-    }
     _triangles.clear();
     _lights.clear();
     _sceneFile.clear();
@@ -63,7 +60,7 @@ void Scene::addMaterial(Material&& mat) {
     _materials.emplace_back(std::forward<Material>(mat));
 }
 
-void Scene::addGeometry(Triangle* triangle)
+void Scene::addGeometry(const Triangle& triangle)
 {
     _triangles.emplace_back(triangle);
 }
@@ -80,19 +77,19 @@ void Scene::compileGeometry()
         }
 
         for (auto& triangleIndex : mesh.TriangleIndexes) {
-            _triangles.emplace_back(new Triangle(  *(mesh.Vertices.at(get<0>(triangleIndex)).get()),
-                                                        *(mesh.Vertices.at(get<1>(triangleIndex)).get()),
-                                                        *(mesh.Vertices.at(get<2>(triangleIndex)).get()),
-                                                        _materials[mesh.MaterialIndex]));
+            _triangles.emplace_back(    *(mesh.Vertices.at(get<0>(triangleIndex)).get()),
+                                        *(mesh.Vertices.at(get<1>(triangleIndex)).get()),
+                                        *(mesh.Vertices.at(get<2>(triangleIndex)).get()),
+                                        _materials[mesh.MaterialIndex]);
         } 
     }
     AABBox mainAABBox;
-    for (const auto triangle : _triangles) {
+    for (auto& triangle : _triangles) {
         if(computeSmoorthNormals) {
-            triangle->normalizeVertices();
+            triangle.normalizeVertices();
         }
 
-        mainAABBox.expandBox(*triangle);
+        mainAABBox.expandBox(triangle);
     }
     _accTree.clear();
     _accTree.buildTree(mainAABBox);    
@@ -105,7 +102,7 @@ bool Scene::intersect(const Ray& ray, Intersaction* intersaction) const
         return false;
     }
 
-    Triangles trianlges;
+    AccelerationTree::TriangleSubset trianlges;
     // Find AABB intersection in the acceleration three and return all triangles that are inside boxes.
     if(!_accTree.checkIntersection(ray, trianlges)) {
         return false;

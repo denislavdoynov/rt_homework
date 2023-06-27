@@ -14,7 +14,7 @@ void AccelerationTree::clear()
     _nodes.clear();
 }
 
-bool AccelerationTree::checkIntersection(const Ray& ray, Triangles& triangles) const
+bool AccelerationTree::checkIntersection(const Ray& ray, TriangleSubset& triangles) const
 {
     std::vector<const Node*> stack;
     stack.push_back(_nodes.begin()->get());
@@ -51,10 +51,10 @@ Node* AccelerationTree::addNode(Node* parent, int depth, const AABBox& box)
     _nodes.emplace_back( std::make_unique<Node>(parent, box) );
     auto* currentNode = _nodes.back().get();
 
-    Triangles triangles;
-    for (const auto triangle : _sceneTriangles) {
-        if(triangle->checkIntersaction(box)) {
-            triangles.push_back(triangle);
+    TriangleSubset triangles;
+    for (const auto& triangle : _sceneTriangles) {
+        if(triangle.checkIntersaction(box)) {
+            triangles.push_back(&triangle);
         }
     }
 

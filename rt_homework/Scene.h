@@ -105,7 +105,7 @@ public:
 	void addLight(Light&& light);
 	void addMesh(Mesh&& mesh);
 	void addMaterial(Material&& mat);
-	void addGeometry(Triangle* triangle);
+	void addGeometry(const Triangle& triangle);
 	bool loadScene(const std::string filename);
 
 	// When we want to update the settings
