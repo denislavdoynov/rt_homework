@@ -117,8 +117,7 @@ public:
 	const Triangles& triangles() const { return _triangles; }
 	const Lights& lights() const { return _lights; }
 
-	bool intersect(const Ray& ray, const Triangles& triangles, Intersaction* intersaction = nullptr) const;
-	bool intersectAABBox(const Ray& ray, Triangles& triangles) const;
+	bool intersect(const Ray& ray, Intersaction* intersaction = nullptr) const;
 
 private:
 	void cleanup();

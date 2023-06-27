@@ -28,6 +28,7 @@ private:
 private:
     std::stringstream _output;
     FrameBuffer _buffer;
+    bool _bufferUpdate = false;
     GLuint _imageTexture = 0;
     int _elapsedTime = 0;
     std::future<int> _future;

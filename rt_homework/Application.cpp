@@ -47,13 +47,15 @@ void Application::renderTasks()  {
     });
 }
 void Application::renderAsync() {
-    _rendering = true;
-    _future = std::async(std::launch::async, [this]() {
-        if(_renderer) 
-            return _renderer->renderScene("", &_buffer, &_output);
-        else 
-            return 0;
-    });
+    if(!_rendering) {
+        _rendering = true;
+        _future = std::async(std::launch::async, [this]() {
+            if(_renderer) 
+                return _renderer->renderScene("", &_buffer, &_output);
+            else 
+                return 0;
+        });
+    }
 }
 
 void Application::keyboardEvents() 
@@ -124,6 +126,7 @@ void Application::renderUI(ImFont* font)
     if (_future.valid() && _future.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
         _rendering = false;
         _elapsedTime = _future.get();
+        _bufferUpdate = true;
     }
 
     if (_rendering) {
@@ -135,7 +138,10 @@ void Application::renderUI(ImFont* font)
         ImGui::Text("Finished in %u ms(s)", _elapsedTime);
     }
 
-    loadTextureFromBuffer(width, height, &_imageTexture);
+    if(_bufferUpdate) {
+        loadTextureFromBuffer(width, height, &_imageTexture);
+        _bufferUpdate = false;
+    }
     ImGui::Image((void*)(intptr_t)_imageTexture, ImVec2(width / 2, height / 2));
     ImGui::InputTextMultiline("##source", (char*)_output.str().c_str(), _output.str().size(), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 6 + 3), ImGuiInputTextFlags_ReadOnly);
 
@@ -369,10 +375,10 @@ int renderAllTasks(FrameBuffer& buffer, std::stringstream& log)
 #ifdef TASK_13
     Scene scene;
     Renderer renderer(scene);
-
+    /*
     if (scene.loadScene("input\\task13\\scene0.crtscene")) {
         elapsedTime += renderer.renderScene("output\\task13\\task0.ppm", &buffer, &log);
-    }
+    }*/
    
     if (scene.loadScene("input\\task13\\scene1.crtscene")) {
         elapsedTime += renderer.renderScene("output\\task13\\task1.ppm", &buffer, &log);

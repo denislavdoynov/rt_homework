@@ -98,20 +98,21 @@ void Scene::compileGeometry()
     _accTree.buildTree(mainAABBox);    
 }
 
-bool Scene::intersectAABBox(const Ray& ray, Triangles& triangles) const
-{
-    return _accTree.checkIntersection(ray, triangles);
-}
-
-bool Scene::intersect(const Ray& ray, const Triangles& triangles, Intersaction* intersaction) const
+bool Scene::intersect(const Ray& ray, Intersaction* intersaction) const
 {
     if((!intersaction && !ray.shadow()) || (intersaction && ray.shadow())) {
         assert(false);
         return false;
     }
 
+    Triangles trianlges;
+    // Find AABB intersection in the acceleration three and return all triangles that are inside boxes.
+    if(!_accTree.checkIntersection(ray, trianlges)) {
+        return false;
+    }
+
     float minPointDistance = ray.tMax();
-    for (const auto triangle : triangles) {
+    for (const auto triangle : trianlges) {
         float rayProj = ray.direction().dot(triangle->normal());
         // If generated ray is not paralel to triangle plane
         if (!Utils::equals(rayProj, 0.0f)) {

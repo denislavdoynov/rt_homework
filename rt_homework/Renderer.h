@@ -26,7 +26,7 @@ protected:
 	Color castCameraRay(int pixelIdx) const;
 
 private:	
-	Color castRay(const Ray& ray, const Triangles& triangles) const;
+	Color castRay(const Ray& ray) const;
 	Color shadeDeffuse(const Ray& ray, const Intersaction& intersaction) const;
 	Color shadeReflective(const Ray& ray, const Intersaction& intersaction) const;
 	Color shadeRefractive(const Ray& ray, const Intersaction& intersaction) const;

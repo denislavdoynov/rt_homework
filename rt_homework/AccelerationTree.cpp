@@ -1,6 +1,5 @@
 #include "AccelerationTree.h"
 #include "Triangle.h"
-#include <stack>
 
 AccelerationTree::AccelerationTree(const Triangles& triangles) : 
     _sceneTriangles(triangles) 
@@ -22,8 +21,8 @@ bool AccelerationTree::checkIntersection(const Ray& ray, Triangles& triangles) c
 
         if(node->Box.checkIntersection(ray)) {
             // Leaf node
-            if(node->OwnedTriangles.size() > 0) {
-                triangles.insert( triangles.end(), node->OwnedTriangles.begin(), node->OwnedTriangles.end() );
+            if(node->TrianglesInside.size() > 0) {
+                triangles.insert( triangles.end(), node->TrianglesInside.begin(), node->TrianglesInside.end() );
             } else { 
                 // Continue checking the tree
                 if(node->Child1) {
@@ -49,21 +48,21 @@ Node* AccelerationTree::addNode(Node* parent, int depth, const AABBox& box)
     _nodes.emplace_back( std::make_unique<Node>(parent, box) );
     auto* currentNode = _nodes.back().get();
 
-    Triangles list;
+    Triangles triangles;
     for (const auto triangle : _sceneTriangles) {
         if(triangle->checkIntersaction(box)) {
-            list.push_back(triangle);
+            triangles.push_back(triangle);
         }
     }
 
     // If this box have no triangles stop rescurision
-    if(list.empty()) {
+    if(triangles.empty()) {
         return currentNode;
     }
-
+    
     // Check if this is leaf and populate triangles
-    if(depth >= MAX_TREE_DEPTH || list.size() <= MAX_TRIANGLE_COUNT) {
-        currentNode->OwnedTriangles.swap(list);
+    if(depth >= MAX_TREE_DEPTH || triangles.size() <= MAX_TRIANGLE_COUNT) {
+        currentNode->TrianglesInside.swap(triangles);
         return currentNode;
     }
 

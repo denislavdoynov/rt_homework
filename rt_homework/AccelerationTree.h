@@ -4,8 +4,8 @@
 #include "Utils.h"
 #include <memory>
 
-constexpr uint16_t MAX_TREE_DEPTH = 7;
-constexpr uint16_t MAX_TRIANGLE_COUNT = 10;
+constexpr uint16_t MAX_TREE_DEPTH = 20;
+constexpr uint16_t MAX_TRIANGLE_COUNT = 20;
 
 struct Node;
 
@@ -38,5 +38,5 @@ struct Node
 	Node* Child1 = nullptr;
 	Node* Child2 = nullptr;
 	AABBox Box;
-	Triangles OwnedTriangles;
+	Triangles TrianglesInside;
 };
