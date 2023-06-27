@@ -266,7 +266,7 @@ Vector Renderer::primaryRayDirection(int pixelIdx) const
 
     // Consider the aspect ratio
     float aspectRatio = (float)settings.ImageWidth / (float)settings.ImageHeight;
-    rayDirection.setX(rayDirection.x() * aspectRatio);
+    rayDirection.x *= aspectRatio;
 
     // Set camera rotation matrix
     rayDirection.normalize();

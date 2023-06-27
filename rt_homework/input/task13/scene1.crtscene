@@ -1,7 +1,7 @@
 {
 	"settings": {
 		"background_color": [
-			0, 0.5, 0
+			0.722, 0.722, 0.722
 		],		
 		"image_settings": {
 			"width": 1920,
@@ -51,7 +51,7 @@
 	"materials": [{
 		"type": "diffuse",
 			"albedo": [
-				1, 0, 0
+				0.565, 0.765, 0.969
 			],
 			"smooth_shading": false
 		}			

@@ -65,17 +65,14 @@ void JsonParser::loadVectors(const Value::ConstArray& vecArray, Vertices& vertic
 
 Vector JsonParser::loadVector(const Value::ConstArray& vecArray)
 {
-    Vector res;
     if (vecArray.Size() < 3) {
         assert(false);
-        return res;
+        return Vector();
     }
 
-    res.setX(vecArray[0].GetFloat());
-    res.setY(vecArray[1].GetFloat());
-    res.setZ(vecArray[2].GetFloat());
-
-    return res;
+    return {vecArray[0].GetFloat(),
+            vecArray[1].GetFloat(),
+            vecArray[2].GetFloat()};
 }
 
 bool JsonParser::load(Scene& scene)

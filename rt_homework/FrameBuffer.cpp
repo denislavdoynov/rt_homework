@@ -54,9 +54,6 @@ void FrameBuffer::unlockImageData()
 }
 
 Color& FrameBuffer::operator[](int index) {
-	if (index >= _buffer.size()) {
-		assert(false);
-	}
-
-	return _buffer[index];
+    assert(index < _buffer.size());
+    return _buffer[index];
 }

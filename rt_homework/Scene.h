@@ -14,7 +14,8 @@ struct Intersaction;
 using TriangleIndexes = std::vector<std::tuple<int, int, int>>;
 using Vertices = std::vector<std::unique_ptr<Vertex>>;
 
-constexpr int BUCKET_SIZE = 1024;
+constexpr uint32_t BUCKET_SIZE = 1024;
+constexpr uint16_t MAX_RAY_DEPTH = 7; 
 
 struct Settings
 {
@@ -28,7 +29,7 @@ struct Settings
 	Color BackGroundColor;
 	uint32_t ImageWidth = 0;
 	uint32_t ImageHeight = 0;
-	int MaxDepth = 7; 
+	int MaxDepth = MAX_RAY_DEPTH; 
 	float Bias = 0.001f;
 	float RefractionBias = 0.001f;
 	uint32_t BucketSize = BUCKET_SIZE;

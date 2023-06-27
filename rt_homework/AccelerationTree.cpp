@@ -1,6 +1,9 @@
 #include "AccelerationTree.h"
 #include "Triangle.h"
 
+constexpr uint16_t MAX_TREE_DEPTH = 20;
+constexpr uint16_t MAX_TRIANGLE_COUNT = 20;
+
 AccelerationTree::AccelerationTree(const Triangles& triangles) : 
     _sceneTriangles(triangles) 
 {
@@ -25,11 +28,11 @@ bool AccelerationTree::checkIntersection(const Ray& ray, Triangles& triangles) c
                 triangles.insert( triangles.end(), node->TrianglesInside.begin(), node->TrianglesInside.end() );
             } else { 
                 // Continue checking the tree
-                if(node->Child1) {
-                    stack.push_back(node->Child1);
+                if(node->LeftChild) {
+                    stack.push_back(node->LeftChild);
                 }
-                if(node->Child2) {
-                    stack.push_back(node->Child2);
+                if(node->RightChild) {
+                    stack.push_back(node->RightChild);
                 }
             }
         }
@@ -70,8 +73,9 @@ Node* AccelerationTree::addNode(Node* parent, int depth, const AABBox& box)
     AABBox box1, box2;
     box.split(depth % Vector::SIZE, box1, box2);
      
-    currentNode->Child1 = addNode(currentNode, depth+1, box1);
-    currentNode->Child2 = addNode(currentNode, depth+1, box2);
+    depth++;
+    currentNode->LeftChild = addNode(currentNode, depth, box1);
+    currentNode->RightChild = addNode(currentNode, depth, box2);
 
     return currentNode;
 }

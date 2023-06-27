@@ -44,13 +44,13 @@ bool AABBox::checkIntersection(const AABBox& box) const
 
 void AABBox::reset() 
 {
-    _min.setX(MAX_FLOAT);
-    _min.setY(MAX_FLOAT);
-    _min.setZ(MAX_FLOAT);
+    _min.x = MAX_FLOAT;
+    _min.y = MAX_FLOAT;
+    _min.z = MAX_FLOAT;
 
-    _max.setX(MIN_FLOAT);
-    _max.setY(MIN_FLOAT);
-    _max.setZ(MIN_FLOAT);
+    _max.x = MIN_FLOAT;
+    _max.y = MIN_FLOAT;
+    _max.z = MIN_FLOAT;
 }
 
 bool AABBox::split(int axisIndx, AABBox& box1, AABBox& box2)  const

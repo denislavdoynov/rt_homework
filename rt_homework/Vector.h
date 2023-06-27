@@ -50,25 +50,19 @@ public:
 	Vector& setMin(const Vector& other);
 	Vector& setMax(const Vector& other);
 
-	float x() const { return _data[0]; }
-	float y() const { return _data[1]; }
-	float z() const { return _data[2]; }
-
-	void setX(float x) { _data[0] = x; }
-	void setY(float y) { _data[1] = y; }
-	void setZ(float z) { _data[2] = z; }
-
 	static Vector minVec(const Vector& v1, const Vector& v2);
 	static Vector maxVec(const Vector& v1, const Vector& v2);
 
-private:
-	float _data[SIZE] { 0.f, 0.f, 0.f };
+	union {
+		struct {
+			float x, y, z;
+		};
+		float data[SIZE] { 0.f, 0.f, 0.f };
+	};
 };
 
 class Matrix
 {
-	static constexpr int SIZE = 3;
-
 public:
 	Matrix() = default;
 	Matrix( float a1, float a2, float a3,
@@ -76,10 +70,13 @@ public:
 			float a7, float a8, float a9);
 
 	Vector operator*(const Vector& other) const;
-	Matrix operator*(const Matrix& other) const;
+	Matrix& operator*=(const Matrix& other);
+	
+	//friend Matrix operator*(const Matrix& m1, const Matrix& m2);
 
-private:
-	float _array[SIZE][SIZE]{ {1.f, 0.f, 0.f}, {0.f, 1.f, 0.f}, {0.f, 0.f, 1.f} };
+	float data[Vector::SIZE][Vector::SIZE]{ {1.f, 0.f, 0.f}, 
+											{0.f, 1.f, 0.f}, 
+											{0.f, 0.f, 1.f} };
 };
 
 typedef Vector Point;

@@ -40,7 +40,7 @@ void Camera::pan(const float degs)
         -sint, 0.f, cost
     };
 
-    _rotation = _rotation * rotate;
+    _rotation *= rotate;
 }
 
 void Camera::tilt(const float degs)
@@ -54,7 +54,7 @@ void Camera::tilt(const float degs)
         0.f,    sint, cost
     };
 
-    _rotation = _rotation * rotate;
+    _rotation *= rotate;
 }
 
 void Camera::roll(const float degs)
@@ -68,5 +68,5 @@ void Camera::roll(const float degs)
         0.f,   0.f,   1.f
     };
 
-    _rotation = _rotation * rotate;
+    _rotation *= rotate;
 }

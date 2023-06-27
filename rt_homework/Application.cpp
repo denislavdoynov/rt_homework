@@ -5,7 +5,7 @@
 
 #include "imgui.h"
 
-#define TASK_13
+//#define TASK_13
 
 constexpr int width = 1920;
 constexpr int height = 1080;
@@ -375,10 +375,10 @@ int renderAllTasks(FrameBuffer& buffer, std::stringstream& log)
 #ifdef TASK_13
     Scene scene;
     Renderer renderer(scene);
-    /*
+    
     if (scene.loadScene("input\\task13\\scene0.crtscene")) {
         elapsedTime += renderer.renderScene("output\\task13\\task0.ppm", &buffer, &log);
-    }*/
+    }
    
     if (scene.loadScene("input\\task13\\scene1.crtscene")) {
         elapsedTime += renderer.renderScene("output\\task13\\task1.ppm", &buffer, &log);

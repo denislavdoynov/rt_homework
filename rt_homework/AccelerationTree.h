@@ -4,10 +4,16 @@
 #include "Utils.h"
 #include <memory>
 
-constexpr uint16_t MAX_TREE_DEPTH = 20;
-constexpr uint16_t MAX_TRIANGLE_COUNT = 20;
+struct Node
+{
+	Node(Node* parent, const AABBox& box) : Parent(parent), Box(box) {};
 
-struct Node;
+	Node* Parent = nullptr;
+	Node* LeftChild = nullptr;
+	Node* RightChild = nullptr;
+	AABBox Box;
+	Triangles TrianglesInside;
+};
 
 class AccelerationTree
 {
@@ -30,13 +36,3 @@ private:
 	std::vector<const Node*> stack;
 };
 
-struct Node
-{
-	Node(Node* parent, const AABBox& box) : Parent(parent), Box(box) {};
-
-	Node* Parent = nullptr;
-	Node* Child1 = nullptr;
-	Node* Child2 = nullptr;
-	AABBox Box;
-	Triangles TrianglesInside;
-};
