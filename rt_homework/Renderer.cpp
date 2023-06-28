@@ -36,7 +36,7 @@ int Renderer::renderScene(const std::string& filename, FrameBuffer* buffer, std:
     _totalElapsedTime = 0;
     _bucketManager.updateSceneSettings(_scene.settings());
 
-    FrameBuffer framebuffer(_bucketManager.totalPixels());
+    FrameBuffer framebuffer(_scene.settings().ImageWidth, _scene.settings().ImageHeight);
     auto timeStart = std::chrono::high_resolution_clock::now();
 #ifdef MULTI_THREADED
     if(log) {

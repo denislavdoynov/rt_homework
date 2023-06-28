@@ -3,9 +3,11 @@
 
 static std::mutex m;
 
-FrameBuffer::FrameBuffer(size_t size)
+FrameBuffer::FrameBuffer(uint32_t width, uint32_t height)
 {
-    _buffer.resize(size);
+    _buffer.resize(width * height);
+    _width = width;
+    _height = height;
 }
 
 FrameBuffer::~FrameBuffer()
@@ -19,7 +21,8 @@ FrameBuffer::~FrameBuffer()
 FrameBuffer& FrameBuffer::operator=(const FrameBuffer& rhs)
 {
     _buffer = rhs._buffer;
-    _size = rhs._size;
+    _width = rhs._width;
+    _height = rhs._height;
     
     return *this;
 }

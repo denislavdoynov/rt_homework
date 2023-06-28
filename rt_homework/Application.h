@@ -21,7 +21,7 @@ public:
     void close();
 
 private:
-    bool loadTextureFromBuffer(int width, int height, GLuint* texture);
+    bool loadTextureFromBuffer(GLuint* texture);
     void renderAsync();
     void keyboardEvents();
 
@@ -34,8 +34,8 @@ private:
     std::future<int> _future;
     bool _rendering = true;
     char _sceneFilePath[_MAX_PATH] = {"input\\task13\\scene1.crtscene"};
-    const float _stepMove = 0.4f;
-    const float _stepRot = 0.2f;
+    const float _stepMove = 0.8f;
+    const float _stepRot = 0.4f;
     std::unique_ptr<Renderer> _renderer;
     std::shared_ptr<Scene> _scene;
 };

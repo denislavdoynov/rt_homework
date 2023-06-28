@@ -65,7 +65,7 @@ Node* AccelerationTree::addNode(Node* parent, int depth, const AABBox& box)
     
     // Check if this is leaf and populate triangles
     if(depth >= MAX_TREE_DEPTH || triangles.size() <= MAX_TRIANGLE_COUNT) {
-        currentNode->TrianglesInside.swap(triangles);
+        currentNode->TrianglesInside = std::move(triangles);
         return currentNode;
     }
 

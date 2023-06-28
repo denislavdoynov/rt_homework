@@ -7,12 +7,9 @@
 
 //#define TASK_13
 
-constexpr int width = 1920;
-constexpr int height = 1080;
-
 int renderAllTasks(FrameBuffer& buffer, std::stringstream& log);
 
-bool Application::loadTextureFromBuffer(int width, int height, GLuint* texture)
+bool Application::loadTextureFromBuffer(GLuint* texture)
 {
     if(_buffer.size() == 0)
         return false;
@@ -32,7 +29,7 @@ bool Application::loadTextureFromBuffer(int width, int height, GLuint* texture)
 #if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 #endif
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, _buffer.lockImageData());
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _buffer.width(), _buffer.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, _buffer.lockImageData());
 
     _buffer.unlockImageData();
     *texture = imageTexture;
@@ -64,7 +61,7 @@ void Application::keyboardEvents()
     {
         if (_scene) {
             _scene->camera().pan(_stepMove);
-            _scene->camera().truck(_stepRot);
+            _scene->camera().truck(-_stepRot);
             renderAsync();
         }
     }
@@ -73,7 +70,7 @@ void Application::keyboardEvents()
     {
         if (_scene) {
             _scene->camera().pan(-_stepMove);
-            _scene->camera().truck(-_stepRot);
+            _scene->camera().truck(_stepRot);
             renderAsync();
         }
     }
@@ -81,8 +78,9 @@ void Application::keyboardEvents()
     if (ImGui::IsKeyPressed(ImGuiKey_W))
     {
         if (_scene) {
-            _scene->camera().tilt(_stepMove);
-            _scene->camera().boom(_stepRot);
+            _scene->camera().boom(-_stepRot);
+            _scene->camera().tilt(-_stepMove);
+            
             renderAsync();
         }
     }
@@ -90,8 +88,9 @@ void Application::keyboardEvents()
     if (ImGui::IsKeyPressed(ImGuiKey_S))
     {
         if (_scene) {
-            _scene->camera().tilt(-_stepMove);
-            _scene->camera().boom(-_stepRot);
+            _scene->camera().boom(_stepRot);
+            _scene->camera().tilt(_stepMove);
+            
             renderAsync();
         }
     }
@@ -139,10 +138,10 @@ void Application::renderUI(ImFont* font)
     }
 
     if(_bufferUpdate) {
-        loadTextureFromBuffer(width, height, &_imageTexture);
+        loadTextureFromBuffer(&_imageTexture);
         _bufferUpdate = false;
     }
-    ImGui::Image((void*)(intptr_t)_imageTexture, ImVec2(width / 2, height / 2));
+    ImGui::Image((void*)(intptr_t)_imageTexture, ImVec2(960, 540));
     ImGui::InputTextMultiline("##source", (char*)_output.str().c_str(), _output.str().size(), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 6 + 3), ImGuiInputTextFlags_ReadOnly);
 
     ImGui::PopFont();

@@ -8,7 +8,7 @@ class FrameBuffer
 {
 public:
     FrameBuffer() = default;
-    FrameBuffer(size_t size);
+    FrameBuffer(uint32_t width, uint32_t height);
     ~FrameBuffer();
 
     FrameBuffer& operator=(const FrameBuffer& rhs);
@@ -16,6 +16,8 @@ public:
 
     void genImageData();
     size_t size() const { return _buffer.size(); }
+    uint32_t width() const { return _width; }
+    uint32_t height() const { return _height; }
     const std::vector<Color>& buffer() const { return _buffer; }
 
     unsigned char* lockImageData();
@@ -25,6 +27,7 @@ public:
 private:
     std::vector<Color> _buffer;
     unsigned char* _imageData = nullptr;
-    size_t _size = 0;
+    uint32_t _width = 0;
+    uint32_t _height = 0;
 };
 
