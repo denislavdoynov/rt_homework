@@ -178,7 +178,7 @@ Color Renderer::shadeReflective(const Ray& ray, const Intersaction& intersaction
         reflectiveRayDirection(ray.direction(), surfNormal), 
         ray.depth());
 
-    Color color = castRay(ray);
+    Color color = castRay(reflectionRay);
     return color * intersaction.Triangle->metrial().Albedo;
 }
 

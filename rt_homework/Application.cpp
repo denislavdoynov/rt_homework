@@ -94,6 +94,22 @@ void Application::keyboardEvents()
             renderAsync();
         }
     }
+
+    if (ImGui::IsKeyPressed(ImGuiKey_Z))
+    {
+        if (_scene) {
+            _scene->camera().dolly(0.03f);            
+            renderAsync();
+        }
+    }
+
+    if (ImGui::IsKeyPressed(ImGuiKey_X))
+    {
+        if (_scene) {
+            _scene->camera().dolly(-0.03f);            
+            renderAsync();
+        }
+    }
 }
 
 void Application::close() 

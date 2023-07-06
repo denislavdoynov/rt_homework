@@ -1,5 +1,6 @@
 #include "AccelerationTree.h"
 #include "Triangle.h"
+#include <stack>
 
 constexpr uint16_t MAX_TREE_DEPTH = 20;
 constexpr uint16_t MAX_TRIANGLE_COUNT = 20;
@@ -16,11 +17,11 @@ void AccelerationTree::clear()
 
 bool AccelerationTree::checkIntersection(const Ray& ray, TriangleSubset& triangles) const
 {
-    std::vector<const Node*> stack;
-    stack.push_back(_nodes.begin()->get());
+    std::stack<const Node*> stack;
+    stack.push(_nodes.begin()->get());
     while(!stack.empty()) {
-        const auto node = stack.back();
-        stack.pop_back();
+        const auto node = stack.top();
+        stack.pop();
 
         if(node->Box.checkIntersection(ray)) {
             // Leaf node
@@ -29,10 +30,10 @@ bool AccelerationTree::checkIntersection(const Ray& ray, TriangleSubset& triangl
             } else { 
                 // Continue checking the tree
                 if(node->LeftChild) {
-                    stack.push_back(node->LeftChild);
+                    stack.push(node->LeftChild);
                 }
                 if(node->RightChild) {
-                    stack.push_back(node->RightChild);
+                    stack.push(node->RightChild);
                 }
             }
         }
